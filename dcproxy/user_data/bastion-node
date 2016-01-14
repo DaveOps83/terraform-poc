@@ -1,0 +1,3 @@
+#!/bin/bash
+yum -y update
+chmod 400 ${dcproxy_private_key}

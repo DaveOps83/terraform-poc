@@ -1,2 +1,0 @@
-#!/bin/bash -ex
-/usr/local/sbin/configure-pat.sh

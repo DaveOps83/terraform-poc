@@ -1,0 +1,39 @@
+#!/bin/bash
+yum -y update
+mkdir -p /var/www
+cat <<NGINX_HEALTH_CHECK > /var/www/health_check.htm
+OK
+NGINX_HEALTH_CHECK
+yum -y install nginx
+mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.install
+cat <<NGINX_CONF > /etc/nginx/nginx.conf
+user  nginx;
+worker_processes  auto;
+error_log  /var/log/nginx/error.log;
+pid        /var/run/nginx.pid;
+events {
+    worker_connections 1024;
+}
+http {
+    include         /etc/nginx/mime.types;
+    default_type    application/octet-stream;
+    access_log  /var/log/nginx/access.log  combined;
+    error_log  /var/log/nginx/error.log  error;
+    sendfile            on;
+    tcp_nopush          on;
+    tcp_nodelay         on;
+    keepalive_timeout   65;
+    types_hash_max_size 2048;
+    include /etc/nginx/conf.d/*.conf;
+    root /var/www;
+    server {
+        listen 80;
+        server_name       ${server_name_dcproxy} ${server_name_dcproxy_node};
+        location = /health_check.htm {}
+        location / {
+          proxy_pass      ${proxy_pass_dcproxy};
+        }
+    }
+}
+NGINX_CONF
+service nginx start
