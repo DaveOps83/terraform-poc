@@ -228,39 +228,19 @@ resource "aws_security_group_rule" "bastion_node_https_to_all" {
     security_group_id = "${aws_security_group.bastion_node.id}"
 }
 
-resource "template_file" "dcproxy_node_1_user_data" {
+resource "template_file" "dcproxy_node_user_data" {
   template = "${var.dcproxy_user_data}"
   vars {
-    server_name_dcproxy = "dcproxy.${var.env_name}.travcorpservices.com"
-    proxy_pass_dcproxy = "https://dc.qa.travcorpservices.com"
-    server_name_dcproxy_node = "dcproxy-node-1.${var.env_name}.travcorpservices.com"
+    dc_dns = "dc.qa.travcorpservices.com"
   }
 }
 
-resource "template_cloudinit_config" "dcproxy_node_1_config" {
+resource "template_cloudinit_config" "dcproxy_node_config" {
   gzip          = false
   base64_encode = false
   part {
     content_type = "text/x-shellscript"
-    content      = "${template_file.dcproxy_node_1_user_data.rendered}"
-  }
-}
-
-resource "template_file" "dcproxy_node_2_user_data" {
-  template = "${var.dcproxy_user_data}"
-  vars {
-    server_name_dcproxy = "dcproxy.${var.env_name}.travcorpservices.com"
-    proxy_pass_dcproxy = "https://dc.qa.travcorpservices.com"
-    server_name_dcproxy_node = "dcproxy-node-2.${var.env_name}.travcorpservices.com"
-  }
-}
-
-resource "template_cloudinit_config" "dcproxy_node_2_config" {
-  gzip          = false
-  base64_encode = false
-  part {
-    content_type = "text/x-shellscript"
-    content      = "${template_file.dcproxy_node_2_user_data.rendered}"
+    content      = "${template_file.dcproxy_node_user_data.rendered}"
   }
 }
 
@@ -288,7 +268,7 @@ resource "aws_instance" "dcproxy_node_1" {
     private_ip = "10.0.1.248"
     vpc_security_group_ids = ["${aws_security_group.dcproxy_nodes.id}"]
     #disable_api_termination = "true"
-    user_data = "${template_cloudinit_config.dcproxy_node_1_config.rendered}"
+    user_data = "${template_cloudinit_config.dcproxy_node_config.rendered}"
     tags {
         Name = "${var.stack_name}-node-1"
         Description = "${var.stack_description}"
@@ -312,7 +292,7 @@ resource "aws_instance" "dcproxy_node_2" {
     private_ip = "10.0.2.248"
     vpc_security_group_ids = ["${aws_security_group.dcproxy_nodes.id}"]
     #disable_api_termination = "true"
-    user_data = "${template_cloudinit_config.dcproxy_node_2_config.rendered}"
+    user_data = "${template_cloudinit_config.dcproxy_node_config.rendered}"
     tags {
         Name = "${var.stack_name}-node-2"
         Description = "${var.stack_description}"
