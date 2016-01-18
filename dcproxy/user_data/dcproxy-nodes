@@ -1,35 +1,26 @@
-#!/bin/bash -x
-#Make sure OS is up to date
+#!/bin/bash
 yum -y update
-#Configure rsyslog UDP logging for HAProxy
-sed -i 's/#$ModLoad imudp/$ModLoad imudp/' /etc/rsyslog.conf
-sed -i 's/#$UDPServerRun 514/$UDPServerRun 514\n$UDPServerAddress 127.0.0.1/' /etc/rsyslog.conf
-cat <<RSYSLOG_CONFIG > /etc/rsyslog.d/haproxy.conf
-local2.*    /var/log/haproxy.log
-RSYSLOG_CONFIG
-service rsyslog restart
-#Install and configure HAProxy
-yum install -y haproxy
-mv /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.install
-cat <<HAPROXY_CONFIG > /etc/haproxy/haproxy.cfg
-global
-    log         127.0.0.1 local2 debug
-    chroot      /var/lib/haproxy
-    pidfile     /var/run/haproxy.pid
-    maxconn     100
-    user        haproxy
-    group       haproxy
-    daemon
-defaults
-    mode                    http
-    log                     global
-    option                  httplog
-    timeout connect         5000ms
-    timeout client          50000ms
-    timeout server          50000ms
-listen http-in
-    bind *:80
-    server dc ${dc_dns}
-    option httpchk GET /tropics/TropicsWS?wsdl
-HAPROXY_CONFIG
-service haproxy start
+yum -y install nginx
+mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.install
+cat <<NGINX_CONF > /etc/nginx/nginx.conf
+user  nginx;
+worker_processes  auto;
+error_log  /var/log/nginx/error.log;
+pid        /var/run/nginx.pid;
+events {
+    worker_connections 1024;
+}
+http {
+    include         /etc/nginx/mime.types;
+    default_type    application/octet-stream;
+    access_log  /var/log/nginx/access.log combined;
+    error_log  /var/log/nginx/error.log error;
+    server {
+        listen 80 default_server;
+        location / {
+            proxy_pass https://${dc_dns};
+        }
+    }
+}
+NGINX_CONF
+service nginx start

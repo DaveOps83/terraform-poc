@@ -1,89 +1,116 @@
-variable "env_name" {
-  default = "uat"
-  description = "Lowercase subdomain for environment which is used in DNS records - dev,qa,uat or prod."
+variable "aws_target_env" {
+  description = "Target AWS environment abbreviation in LOWERCASE - [dev/qa/uat/prod]"
 }
 
-variable "hosted_zone_id" {
-    default = "***REMOVED***"
-    description = "Hosted zone ID for DNS record creation."
-}
-
-variable "dc_public_ip" {
-    default = "***REMOVED***"
-    description = "Public IP of the TTC data centre endpoint."
-}
-
-variable "stack_name" {
-  description = "Name to be used for all resources within stack."
+variable "aws_stack_name" {
+  description = "Name tag value to be used for all resources within the stack."
   default = "dcproxy"
 }
 
-variable "stack_description" {
-  description = "Description to be used for all resources within stack."
+variable "aws_stack_description" {
+  description = "Description tag value to be used for all resources within the stack."
   default = "Do not delete or modify"
 }
 
 variable "aws_region" {
-    description = "AWS region to launch servers."
-    default = "us-east-1"
+    description = "AWS region in which to launch stack."
+    default = {
+        dev = "eu-west-1"
+        qa = "eu-west-1"
+        uat = "us-east-1"
+        prod = "us-east-1"
+    }
 }
 
-variable "az_1" {
-    description = "First availability zone."
-    default = "us-east-1a"
-}
-
-variable "az_2" {
-    description = "Second availability zone."
-    default = "us-east-1b"
+variable "aws_az" {
+    description = "AWS availability zone in which to launch stack."
+    default = {
+        dev = "eu-west-1a"
+        qa = "eu-west-1a"
+        uat = "us-east-1a"
+        prod = "us-east-1b"
+    }
 }
 
 variable "aws_ami" {
-    default = "ami-60b6c60a"
-    description = "AMI for bastion and dcproxy instances."
+    description = "AWS AMI to use when launching instances in our chosen regions."
+    default = {
+        eu-west-1 = "ami-60b6c60a"
+        us-east-1 = "ami-60b6c60a"
+    }
 }
 
-variable "aws_instance_type" {
-    default = "t2.nano"
-    description = "Bastion and dcproxy nodes instance size."
-}
-
-variable "aws_nat_gateway_eip_1" {
-    default = "eipalloc-0a0f826e"
-    description = "Elastic IP for NAT gateway 1."
-}
-
-variable "aws_nat_gateway_eip_2" {
-    default = "eipalloc-210c8145"
-    description = "Elastic IP for NAT gateway 2."
+variable "dcproxy_instance_type" {
+    description = "AWS instance type to to use when launching dcproxy instances."
+    default = {
+        dev = "t2.micro"
+        qa = "t2.micro"
+        uat = "t2.small"
+        prod = "t2.medium"
+    }
 }
 
 variable "dcproxy_key_pair" {
-  default = "dcproxy-nodes-uat"
-  description = "Name of the dcproxy nodes SSH key pair."
-}
-
-variable "private_keys_path" {
-  default = "../../../ssh"
-  description = "Path to the directory containing the private portions of the dcproxy and bastion nodes SSH key pairs."
+    description = "AWS key pair to use when launching dcproxy instances."
+    default = {
+        dev = "dcproxy-nodes-dev"
+        qa = "dcproxy-nodes-qa"
+        uat = "dcproxy-nodes-uat"
+        prod = "dcproxy-nodes-prod"
+    }
 }
 
 variable "dcproxy_user_data" {
     default = "user_data/dcproxy-nodes"
-    description = "User_data script for dcproxy nodes."
+    description = "AWS user_data script for bootstrapping dcproxy instances."
+}
+
+variable "bastion_instance_type" {
+    description = "AWS instance type to use when launching the bastion instance."
+    default = "t2.nano"
+}
+
+variable "bastion_key_pair" {
+  description = "AWS key pair to use when launching the bastion instance."
+  default = {
+      dev = "dcproxy-bastion-dev"
+      qa = "dcproxy-bastion-qa"
+      uat = "dcproxy-bastion-uat"
+      prod = "dcproxy-bastion-prod"
+  }
 }
 
 variable "bastion_user_data" {
     default = "user_data/bastion-node"
-    description = "User_data script for the bastion node."
+    description = "AWS user_data script for bootstrapping the bastion node."
 }
 
-variable "bastion_key_pair" {
-  default = "dcproxy-bastion-uat"
-  description = "Name of the bastion node SSH key pair."
+variable "aws_nat_gateway_eip" {
+    description = "AWS elastic IP allocation ID for NAT gateway."
+    default = {
+        dev = ""
+        qa = ""
+        uat = "eipalloc-0a0f826e"
+        prod = "eipalloc-6136a605"
+    }
 }
 
-variable "bastion_dcproxy_private_key_destination" {
-  default = "/home/ec2-user"
-  description = "The target upload directory for the dcproxy SSH private key on the bastion node."
+variable "aws_hosted_zone" {
+    description = "AWS hosted zone ID for DNS record creation."
+    default = {
+        dev = ""
+        qa = ""
+        uat = "***REMOVED***"
+        prod = "***REMOVED***"
+    }
+}
+
+variable "dc_public_ip" {
+    description = "Public IP of the TTC data centre endpoint."
+    default = {
+        dev = "***REMOVED***"
+        qa = "***REMOVED***"
+        uat = "***REMOVED***"
+        prod = "***REMOVED***"
+    }
 }
