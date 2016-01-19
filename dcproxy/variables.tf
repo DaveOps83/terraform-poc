@@ -2,6 +2,14 @@ variable "aws_target_env" {
   description = "Target AWS environment abbreviation in LOWERCASE - [dev/qa/uat/prod]"
 }
 
+variable "aws_access_key" {
+  description = "AWS API access key for the target environment. Value sourced from the TF_VAR_aws_access_key environment variable."
+}
+
+variable "aws_secret_key" {
+  description = "AWS API secret key for the target environment. Value sourced from the TF_VAR_aws_secret_key environment variable."
+}
+
 variable "aws_stack_name" {
   description = "Name tag value to be used for all resources within the stack."
   default = "dcproxy"
@@ -65,6 +73,16 @@ variable "dcproxy_user_data" {
     description = "AWS user_data script for bootstrapping dcproxy instances."
 }
 
+variable "dcproxy_dns" {
+    description = "Public IP of the TTC data centre endpoint."
+    default = {
+        dev = "dcproxy.dev.travcorpservices.com"
+        qa = "dcproxy.qa.travcorpservices.com"
+        uat = "dcproxy.uat.travcorpservices.com"
+        prod = "dcproxy.prod.travcorpservices.com"
+    }
+}
+
 variable "bastion_instance_type" {
     description = "AWS instance type to use when launching the bastion instance."
     default = "t2.nano"
@@ -81,15 +99,15 @@ variable "bastion_key_pair" {
 }
 
 variable "bastion_user_data" {
-    default = "user_data/bastion-node"
+    default = "user_data/bastion"
     description = "AWS user_data script for bootstrapping the bastion node."
 }
 
 variable "aws_nat_gateway_eip" {
     description = "AWS elastic IP allocation ID for NAT gateway."
     default = {
-        dev = ""
-        qa = ""
+        dev = "eipalloc-296eb54c"
+        qa = "eipalloc-556db630"
         uat = "eipalloc-0a0f826e"
         prod = "eipalloc-6136a605"
     }
@@ -98,19 +116,29 @@ variable "aws_nat_gateway_eip" {
 variable "aws_hosted_zone" {
     description = "AWS hosted zone ID for DNS record creation."
     default = {
-        dev = ""
-        qa = ""
+        dev = "***REMOVED***"
+        qa = "***REMOVED***"
         uat = "***REMOVED***"
         prod = "***REMOVED***"
     }
 }
 
-variable "dc_public_ip" {
+variable "dc_ip" {
     description = "Public IP of the TTC data centre endpoint."
     default = {
         dev = "***REMOVED***"
         qa = "***REMOVED***"
         uat = "***REMOVED***"
         prod = "***REMOVED***"
+    }
+}
+
+variable "dc_dns" {
+    description = "Public IP of the TTC data centre endpoint."
+    default = {
+        dev = "dc.dev.travcorpservices.com"
+        qa = "dc.qa.travcorpservices.com"
+        uat = "dc.uat.travcorpservices.com"
+        prod = "dc.prod.travcorpservices.com"
     }
 }

@@ -1,4 +1,6 @@
 provider "aws" {
+  access_key = "${var.aws_access_key}"
+  secret_key = "${var.aws_secret_key}"
   region = "${lookup(var.aws_region, var.aws_target_env)}"
 }
 
@@ -102,7 +104,7 @@ resource "aws_security_group_rule" "dcproxy_nodes_ssh_from_bastion" {
     from_port = 22
     to_port = 22
     protocol = "tcp"
-    source_security_group_id = "${aws_security_group.bastion_node.id}"
+    source_security_group_id = "${aws_security_group.bastion.id}"
     security_group_id = "${aws_security_group.dcproxy_nodes.id}"
 }
 
@@ -133,7 +135,7 @@ resource "aws_security_group_rule" "dcproxy_nodes_https_to_all" {
     security_group_id = "${aws_security_group.dcproxy_nodes.id}"
 }
 
-resource "aws_security_group" "bastion_node" {
+resource "aws_security_group" "bastion" {
     name = "${var.aws_stack_name}-bastion-node"
     description = "${var.aws_stack_description}"
     vpc_id = "${aws_vpc.vpc.id}"
@@ -144,46 +146,46 @@ resource "aws_security_group" "bastion_node" {
     }
 }
 
-resource "aws_security_group_rule" "bastion_node_ssh_from_london" {
+resource "aws_security_group_rule" "bastion_ssh_from_london" {
     type = "ingress"
     from_port = 22
     to_port = 22
     protocol = "tcp"
     cidr_blocks = ["***REMOVED***"]
-    security_group_id = "${aws_security_group.bastion_node.id}"
+    security_group_id = "${aws_security_group.bastion.id}"
 }
 
-resource "aws_security_group_rule" "bastion_node_ssh_to_dcproxy_nodes" {
+resource "aws_security_group_rule" "bastion_ssh_to_dcproxy_nodes" {
     type = "egress"
     from_port = 22
     to_port = 22
     protocol = "tcp"
     source_security_group_id = "${aws_security_group.dcproxy_nodes.id}"
-    security_group_id = "${aws_security_group.bastion_node.id}"
+    security_group_id = "${aws_security_group.bastion.id}"
 }
 
-resource "aws_security_group_rule" "bastion_node_http_to_all" {
+resource "aws_security_group_rule" "bastion_http_to_all" {
     type = "egress"
     from_port = 80
     to_port = 80
     protocol = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
-    security_group_id = "${aws_security_group.bastion_node.id}"
+    security_group_id = "${aws_security_group.bastion.id}"
 }
 
-resource "aws_security_group_rule" "bastion_node_https_to_all" {
+resource "aws_security_group_rule" "bastion_https_to_all" {
     type = "egress"
     from_port = 443
     to_port = 443
     protocol = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
-    security_group_id = "${aws_security_group.bastion_node.id}"
+    security_group_id = "${aws_security_group.bastion.id}"
 }
 
 resource "template_file" "dcproxy_node_user_data" {
   template = "${var.dcproxy_user_data}"
   vars {
-    dc_dns = "dc.qa.travcorpservices.com"
+    dc_dns = "${lookup(var.dc_dns, var.aws_target_env)}"
   }
 }
 
@@ -196,16 +198,16 @@ resource "template_cloudinit_config" "dcproxy_node_config" {
   }
 }
 
-resource "template_file" "bastion_node_user_data" {
+resource "template_file" "bastion_user_data" {
   template = "${var.bastion_user_data}"
 }
 
-resource "template_cloudinit_config" "bastion_node_config" {
+resource "template_cloudinit_config" "bastion_config" {
   gzip          = false
   base64_encode = false
   part {
     content_type = "text/x-shellscript"
-    content      = "${template_file.bastion_node_user_data.rendered}"
+    content      = "${template_file.bastion_user_data.rendered}"
   }
 }
 
@@ -233,17 +235,17 @@ resource "aws_nat_gateway" "nat_gateway" {
     depends_on = ["aws_internet_gateway.internet_gateway"]
 }
 
-resource "aws_instance" "bastion_node" {
+resource "aws_instance" "bastion" {
     instance_type = "${var.bastion_instance_type}"
     ami = "${lookup(var.aws_ami, lookup(var.aws_region, var.aws_target_env))}"
     key_name = "${lookup(var.bastion_key_pair, var.aws_target_env)}"
     subnet_id = "${aws_subnet.public_az.id}"
-    associate_public_ip_address = "false"
-    vpc_security_group_ids = ["${aws_security_group.bastion_node.id}"]
-    disable_api_termination = "true"
-    user_data = "${template_cloudinit_config.bastion_node_config.rendered}"
+    associate_public_ip_address = "true"
+    vpc_security_group_ids = ["${aws_security_group.bastion.id}"]
+    disable_api_termination = "false"
+    user_data = "${template_cloudinit_config.bastion_config.rendered}"
     tags {
-        Name = "${var.aws_stack_name}-bastion-node"
+        Name = "${var.aws_stack_name}-bastion"
         Description = "${var.aws_stack_description}"
         Project = "${var.aws_stack_name}"
         Environment = "${var.aws_target_env}"
@@ -253,15 +255,15 @@ resource "aws_instance" "bastion_node" {
 
 resource "aws_route53_record" "dc" {
    zone_id = "${lookup(var.aws_hosted_zone, var.aws_target_env)}"
-   name = "dc.${var.aws_target_env}.travcorpservices.com"
+   name = "${lookup(var.dc_dns, var.aws_target_env)}"
    type = "A"
    ttl = "300"
-   records = ["${lookup(var.dc_public_ip, var.aws_target_env)}"]
+   records = ["${lookup(var.dc_ip, var.aws_target_env)}"]
 }
 
 resource "aws_route53_record" "dcproxy" {
    zone_id = "${lookup(var.aws_hosted_zone, var.aws_target_env)}"
-   name = "dcproxy.${var.aws_target_env}.travcorpservices.com"
+   name = "${lookup(var.dcproxy_dns, var.aws_target_env)}"
    type = "A"
    ttl = "300"
    records = ["${aws_instance.dcproxy_node.private_ip}"]
