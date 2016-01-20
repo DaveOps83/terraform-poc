@@ -183,9 +183,12 @@ resource "aws_security_group_rule" "bastion_https_to_all" {
 }
 
 resource "template_file" "dcproxy_node_user_data" {
-  template = "${var.dcproxy_user_data}"
+  template = "${file("${path.root}/${var.dcproxy_user_data}")}"
   vars {
+    tropics_dns = "${lookup(var.tropics_dns, var.aws_target_env)}"
+    ldaps_dns = "${lookup(var.ldaps_dns, var.aws_target_env)}"
     dc_dns = "${lookup(var.dc_dns, var.aws_target_env)}"
+    dc_ldaps_url = "${var.dc_ldaps_url}"
   }
 }
 
@@ -199,7 +202,7 @@ resource "template_cloudinit_config" "dcproxy_node_config" {
 }
 
 resource "template_file" "bastion_user_data" {
-  template = "${var.bastion_user_data}"
+  template = "${file("${path.root}/${var.bastion_user_data}")}"
 }
 
 resource "template_cloudinit_config" "bastion_config" {
@@ -261,10 +264,54 @@ resource "aws_route53_record" "dc" {
    records = ["${lookup(var.dc_ip, var.aws_target_env)}"]
 }
 
-resource "aws_route53_record" "dcproxy" {
+resource "aws_route53_record" "tropics" {
    zone_id = "${lookup(var.aws_hosted_zone, var.aws_target_env)}"
-   name = "${lookup(var.dcproxy_dns, var.aws_target_env)}"
+   name = "${lookup(var.tropics_dns, var.aws_target_env)}"
    type = "A"
    ttl = "300"
    records = ["${aws_instance.dcproxy_node.private_ip}"]
+}
+
+resource "aws_route53_record" "ldaps" {
+   zone_id = "${lookup(var.aws_hosted_zone, var.aws_target_env)}"
+   name = "${lookup(var.ldaps_dns, var.aws_target_env)}"
+   type = "A"
+   ttl = "300"
+   records = ["${aws_instance.dcproxy_node.private_ip}"]
+}
+
+output "NAT Gateway Elastic IP" {
+    value = "${aws_nat_gateway.nat_gateway.public_ip}"
+}
+
+output "TROPICS Res API internal URL" {
+    value = "http://${aws_route53_record.tropics.name}/tropics/TropicsWS"
+}
+
+output "TROPICS Build API internal URL" {
+    value = "http://${aws_route53_record.tropics.name}/tropics/TropicsBuildWS"
+}
+
+output "TROPICS Customer Sync API internal URL" {
+    value = "http://${aws_route53_record.tropics.name}/tropics/CustomerSyncWS"
+}
+
+output "LDAPS internal URL" {
+    value = "ldaps://${aws_route53_record.ldaps.name}"
+}
+
+output "VPC CIDR block" {
+    value = "${aws_vpc.vpc.cidr_block}"
+}
+
+output "VPC ID" {
+    value = "${aws_vpc.vpc.id}"
+}
+
+output "VPC Private Subnet Route Table ID" {
+    value = "${aws_route_table.private_subnet_az.id}"
+}
+
+output "Bastion SSH command" {
+    value = "ssh -i ${aws_instance.bastion.key_name}.pem ec2-user@${aws_instance.bastion.public_ip}"
 }

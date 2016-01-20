@@ -17,8 +17,16 @@ http {
     error_log  /var/log/nginx/error.log error;
     server {
         listen 80 default_server;
+        server_name ${tropics_dns};
         location / {
             proxy_pass https://${dc_dns};
+        }
+    }
+    server {
+            listen 80;
+            server_name ${ldaps_dns};
+            location / {
+                proxy_pass ${dc_ldaps_url};
         }
     }
 }

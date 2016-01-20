@@ -43,7 +43,7 @@ variable "aws_az" {
 variable "aws_ami" {
     description = "AWS AMI to use when launching instances in our chosen regions."
     default = {
-        eu-west-1 = "ami-60b6c60a"
+        eu-west-1 = "ami-bff32ccc"
         us-east-1 = "ami-60b6c60a"
     }
 }
@@ -53,8 +53,8 @@ variable "dcproxy_instance_type" {
     default = {
         dev = "t2.micro"
         qa = "t2.micro"
-        uat = "t2.small"
-        prod = "t2.medium"
+        uat = "t2.micro"
+        prod = "t2.micro"
     }
 }
 
@@ -73,13 +73,23 @@ variable "dcproxy_user_data" {
     description = "AWS user_data script for bootstrapping dcproxy instances."
 }
 
-variable "dcproxy_dns" {
-    description = "Public IP of the TTC data centre endpoint."
+variable "tropics_dns" {
+    description = "Internal DNS record name for TROPICS."
     default = {
-        dev = "dcproxy.dev.travcorpservices.com"
-        qa = "dcproxy.qa.travcorpservices.com"
-        uat = "dcproxy.uat.travcorpservices.com"
-        prod = "dcproxy.prod.travcorpservices.com"
+        dev = "tropics.dev.travcorpservices.com"
+        qa = "tropics.qa.travcorpservices.com"
+        uat = "tropics.uat.travcorpservices.com"
+        prod = "tropics.prod.travcorpservices.com"
+    }
+}
+
+variable "ldaps_dns" {
+    description = "Internal DNS record name for LDAPS."
+    default = {
+        dev = "ldaps.dev.travcorpservices.com"
+        qa = "ldaps.qa.travcorpservices.com"
+        uat = "ldaps.uat.travcorpservices.com"
+        prod = "ldaps.prod.travcorpservices.com"
     }
 }
 
@@ -107,7 +117,7 @@ variable "aws_nat_gateway_eip" {
     description = "AWS elastic IP allocation ID for NAT gateway."
     default = {
         dev = "eipalloc-296eb54c"
-        qa = "eipalloc-556db630"
+        qa = "eipalloc-496db62c"
         uat = "eipalloc-0a0f826e"
         prod = "eipalloc-6136a605"
     }
@@ -141,4 +151,9 @@ variable "dc_dns" {
         uat = "dc.uat.travcorpservices.com"
         prod = "dc.prod.travcorpservices.com"
     }
+}
+
+variable "dc_ldaps_url" {
+    description = "Public IP of the TTC data centre endpoint."
+    default = "***REMOVED***"
 }

@@ -2,6 +2,7 @@
 #Export Terraform environment variables for AWS credentials, called by wrapper.sh
 #Fill in your credential for the appropriate environment you are working on.
 #This file is in .gitignore to prevent keys being pushed to Github.
+#DO NOT PUSH API KEYS TO GITHUB!!!!
 case $1 in
   dev)
     export TF_VAR_aws_access_key=""

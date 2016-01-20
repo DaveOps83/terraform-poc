@@ -1,5 +1,5 @@
-#!/bin/bash -eux
-#Wrapper script for to build and destroy Terraform controlled VPCs.
+#!/bin/bash
+#Wrapper script to build and destroy Terraform controlled VPCs.
 script_usage="wrapper.sh [apply|destroy|plan|taint] [project folder] [dev|qa|uat|prod] [resource to taint (optional)]"
 aws_env_regex='^(dev|qa|uat|prod)$'
 terraform_cmd_regex='^(apply|destroy|plan|taint)$'
