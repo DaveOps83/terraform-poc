@@ -1,4 +1,4 @@
-#!/bin/bash -eux
+#!/bin/bash
 #Export Terraform environment variables for AWS credentials, called by wrapper.sh
 #Fill in your credentials for the appropriate environment you are working on.
 #When Terraform can use AWS CLI profiles this script will be removed.
