@@ -56,6 +56,10 @@ resource "aws_route_table" "private_subnet_az" {
         cidr_block = "0.0.0.0/0"
         nat_gateway_id = "${aws_nat_gateway.nat_gateway.id}"
     }
+    #Ignore changes to this route table made to support PCX connections.
+    #lifecycle {
+    #    ignore_changes = ["route"]
+    #}
     tags {
         Name = "${var.aws_stack_name}-private-az"
         Description = "${var.aws_stack_description}"
@@ -187,6 +191,7 @@ resource "template_file" "dcproxy_node_user_data" {
   vars {
     tropics_dns = "${lookup(var.tropics_dns, var.aws_target_env)}"
     ldaps_dns = "${lookup(var.ldaps_dns, var.aws_target_env)}"
+    das_dns = "${lookup(var.das_dns, var.aws_target_env)}"
     dc_dns = "${lookup(var.dc_dns, var.aws_target_env)}"
     dc_ldaps_url = "${var.dc_ldaps_url}"
   }
@@ -280,23 +285,35 @@ resource "aws_route53_record" "ldaps" {
    records = ["${aws_instance.dcproxy_node.private_ip}"]
 }
 
+resource "aws_route53_record" "das" {
+   zone_id = "${lookup(var.aws_hosted_zone, var.aws_target_env)}"
+   name = "${lookup(var.das_dns, var.aws_target_env)}"
+   type = "A"
+   ttl = "300"
+   records = ["${aws_instance.dcproxy_node.private_ip}"]
+}
+
 output "NAT Gateway Elastic IP" {
     value = "${aws_nat_gateway.nat_gateway.public_ip}"
 }
 
-output "TROPICS Res API internal URL" {
+output "TROPICS Res API" {
     value = "http://${aws_route53_record.tropics.name}/tropics/TropicsWS"
 }
 
-output "TROPICS Build API internal URL" {
+output "TROPICS Build API" {
     value = "http://${aws_route53_record.tropics.name}/tropics/TropicsBuildWS"
 }
 
-output "TROPICS Customer Sync API internal URL" {
+output "TROPICS Customer Sync API" {
     value = "http://${aws_route53_record.tropics.name}/tropics/CustomerSyncWS"
 }
 
-output "LDAPS internal URL" {
+output "Data Access Services" {
+    value = "http://${aws_route53_record.das.name}/DataAccessServices/OracleDataService.svc"
+}
+
+output "LDAPS" {
     value = "ldaps://${aws_route53_record.ldaps.name}"
 }
 
@@ -308,7 +325,7 @@ output "VPC ID" {
     value = "${aws_vpc.vpc.id}"
 }
 
-output "VPC Private Subnet Route Table ID" {
+output "VPC Route Table ID" {
     value = "${aws_route_table.private_subnet_az.id}"
 }
 

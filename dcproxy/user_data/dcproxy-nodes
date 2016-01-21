@@ -24,6 +24,13 @@ http {
     }
     server {
             listen 80;
+            server_name ${das_dns};
+            location = /DataAccessServices/OracleDataService.svc {
+                proxy_pass https://${dc_dns};
+        }
+    }
+    server {
+            listen 80;
             server_name ${ldaps_dns};
             location / {
                 proxy_pass ${dc_ldaps_url};

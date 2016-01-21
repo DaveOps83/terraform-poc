@@ -26,7 +26,7 @@ if [[ $# -eq 3 || $# -eq 4 && $1 =~ $terraform_cmd_regex && -d $(pwd)/$2 && $3 =
 then
   for i in $terraform_state_dir $terraform_state_backup_dir $terraform_log_dir ;
   do
-    if [[ ! -d $2/$i ]] ;
+    if [ ! -d "$2/$i" ] ;
     then
       mkdir $2/$i
     fi
@@ -46,5 +46,6 @@ then
     esac
 else
   echo -e $script_usage
+  exit 1
 fi
 exit $?

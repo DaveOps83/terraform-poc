@@ -93,6 +93,16 @@ variable "ldaps_dns" {
     }
 }
 
+variable "das_dns" {
+    description = "Internal DNS record name for Data Access Services."
+    default = {
+        dev = "das.dev.travcorpservices.com"
+        qa = "das.qa.travcorpservices.com"
+        uat = "das.uat.travcorpservices.com"
+        prod = "das.prod.travcorpservices.com"
+    }
+}
+
 variable "bastion_instance_type" {
     description = "AWS instance type to use when launching the bastion instance."
     default = "t2.nano"
@@ -116,7 +126,7 @@ variable "bastion_user_data" {
 variable "aws_nat_gateway_eip" {
     description = "AWS elastic IP allocation ID for NAT gateway."
     default = {
-        dev = "eipalloc-296eb54c"
+        dev = "eipalloc-68c90b0d"
         qa = "eipalloc-496db62c"
         uat = "eipalloc-0a0f826e"
         prod = "eipalloc-6136a605"
