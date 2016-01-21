@@ -2,7 +2,7 @@
 #Export Terraform environment variables for AWS credentials, called by wrapper.sh
 #Fill in your credentials for the appropriate environment you are working on.
 #When Terraform can use AWS CLI profiles this script will be removed.
-#This repositories index has been update to ignore changes to this file:
+#This repository's index has been updated to ignore changes to this file:
 #git update-index --assume-unchanged credentials.sh
 #DO NOT PUSH API KEYS TO GITHUB!!!!
 case $1 in
