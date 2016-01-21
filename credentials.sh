@@ -21,3 +21,8 @@ case $1 in
     export TF_VAR_aws_secret_key=""
     ;;
 esac
+if [[ -z $TF_VAR_aws_access_key || -z $TF_VAR_aws_secret_key ]] ;
+then
+  echo -e "Please set API credentials for $1 in credentials.sh"
+  exit 1
+fi
