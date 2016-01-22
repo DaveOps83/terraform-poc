@@ -1,5 +1,4 @@
 #!/bin/bash
-yum -y update
 yum -y install nginx
 mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.install
 cat <<NGINX_CONF > /etc/nginx/nginx.conf
@@ -16,24 +15,10 @@ http {
     access_log  /var/log/nginx/access.log combined;
     error_log  /var/log/nginx/error.log error;
     server {
-        listen 80 default_server;
-        server_name ${tropics_dns};
+        listen 80;
+        server_name ${dns};
         location / {
             proxy_pass https://${dc_dns};
-        }
-    }
-    server {
-            listen 80;
-            server_name ${das_dns};
-            location = /DataAccessServices/OracleDataService.svc {
-                proxy_pass https://${dc_dns};
-        }
-    }
-    server {
-            listen 80;
-            server_name ${ldaps_dns};
-            location / {
-                proxy_pass ${dc_ldaps_url};
         }
     }
 }

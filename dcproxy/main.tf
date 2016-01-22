@@ -1,264 +1,186 @@
 provider "aws" {
   access_key = "${var.aws_access_key}"
   secret_key = "${var.aws_secret_key}"
-  region = "${lookup(var.aws_region, var.aws_target_env)}"
+  region = "${lookup(var.region, var.aws_target_env)}"
 }
 
-resource "aws_vpc" "vpc" {
-    cidr_block = "10.0.0.0/16"
-    enable_dns_support = "true"
-    enable_dns_hostnames = "true"
-    tags {
-        Name = "${var.aws_stack_name}"
-        Description = "${var.aws_stack_description}"
-        Project = "${var.aws_stack_name}"
-        Environment = "${var.aws_target_env}"
-    }
+module "vpc" {
+    source = "modules/vpc"
+    vpc_cidr_block = "${var.vpc_cidr_block}"
+    primary_private_cidr_block = "${var.primary_private_cidr_block}"
+    primary_public_cidr_block = "${var.primary_public_cidr_block}"
+    secondary_private_cidr_block = "${var.secondary_private_cidr_block}"
+    secondary_public_cidr_block = "${var.secondary_public_cidr_block}"
+    primary_az = "${lookup(var.primary_az, var.aws_target_env)}"
+    secondary_az = "${lookup(var.secondary_az, var.aws_target_env)}"
+    primary_nat_gateway_eip = "${var.primary_nat_gateway_eip}"
+    secondary_nat_gateway_eip = "${var.secondary_nat_gateway_eip}"
+    name_tag = "${var.stack_name}"
+    description_tag = "${var.stack_description}"
+    project_tag = "${var.stack_name}"
+    environment_tag = "${var.aws_target_env}"
 }
 
-resource "aws_subnet" "private_az" {
-    vpc_id = "${aws_vpc.vpc.id}"
-    cidr_block = "10.0.1.0/24"
-    availability_zone = "${lookup(var.aws_az, var.aws_target_env)}"
-    tags {
-        Name = "${var.aws_stack_name}-private-az"
-        Description = "${var.aws_stack_description}"
-        Project = "${var.aws_stack_name}"
-        Environment = "${var.aws_target_env}"
-    }
+module "bastion_security_group" {
+    source = "modules/bastion_security_group"
+    vpc_id = "${module.vpc.id}"
+    ssh_source_range = "${var.dc_egress_range}"
+    primary_private_cidr_block = "${var.primary_private_cidr_block}"
+    secondary_private_cidr_block = "${var.secondary_private_cidr_block}"
+    name = "${var.stack_name}"
+    description = "${var.stack_description}"
+    tag_project = "${var.stack_name}"
+    tag_environment = "${var.aws_target_env}"
 }
 
-resource "aws_subnet" "public_az" {
-    vpc_id = "${aws_vpc.vpc.id}"
-    cidr_block = "10.0.3.0/24"
-    availability_zone = "${lookup(var.aws_az, var.aws_target_env)}"
-    tags {
-        Name = "${var.aws_stack_name}-public-az"
-        Description = "${var.aws_stack_description}"
-        Project = "${var.aws_stack_name}"
-        Environment = "${var.aws_target_env}"
-    }
+module "bastion_instance" {
+    source = "modules/bastion_instance"
+    bastion_subnet = "${module.vpc.primary_public_subnet}"
+    bastion_security_group = "${module.bastion_security_group.id}"
+    bastion_tag_name = "${var.stack_name}"
+    bastion_tag_description = "${var.stack_description}"
+    bastion_tag_project = "${var.stack_name}"
+    bastion_tag_environment = "${var.aws_target_env}"
 }
 
-resource "aws_internet_gateway" "internet_gateway" {
-    vpc_id = "${aws_vpc.vpc.id}"
-    tags {
-        Name = "${var.aws_stack_name}"
-        Description = "${var.aws_stack_description}"
-        Project = "${var.aws_stack_name}"
-        Environment = "${var.aws_target_env}"
-    }
+module "tropics_security_group" {
+    source = "modules/tropics_security_group"
+    vpc_id = "${module.vpc.id}"
+    bastion_private_ip = "${module.bastion_instance.private_ip}"
+    primary_nat_gateway_ip = "${module.vpc.primary_nat_gateway_ip}"
+    secondary_nat_gateway_ip = "${module.vpc.secondary_nat_gateway_ip}"
+    name = "${var.stack_name}"
+    description = "${var.stack_description}"
+    tag_project = "${var.stack_name}"
+    tag_environment = "${var.aws_target_env}"
 }
 
-resource "aws_route_table" "private_subnet_az" {
-    vpc_id = "${aws_vpc.vpc.id}"
-    route {
-        cidr_block = "0.0.0.0/0"
-        nat_gateway_id = "${aws_nat_gateway.nat_gateway.id}"
-    }
-    #Ignore changes to this route table made to support PCX connections.
-    #lifecycle {
-    #    ignore_changes = ["route"]
-    #}
-    tags {
-        Name = "${var.aws_stack_name}-private-az"
-        Description = "${var.aws_stack_description}"
-        Project = "${var.aws_stack_name}"
-        Environment = "${var.aws_target_env}"
-    }
+module "das_security_group" {
+    source = "modules/das_security_group"
+    vpc_id = "${module.vpc.id}"
+    bastion_private_ip = "${module.bastion_instance.private_ip}"
+    primary_nat_gateway_ip = "${module.vpc.primary_nat_gateway_ip}"
+    secondary_nat_gateway_ip = "${module.vpc.secondary_nat_gateway_ip}"
+    name = "${var.stack_name}"
+    description = "${var.stack_description}"
+    tag_project = "${var.stack_name}"
+    tag_environment = "${var.aws_target_env}"
 }
 
-resource "aws_route_table_association" "private_az_private_subnet" {
-    subnet_id = "${aws_subnet.private_az.id}"
-    route_table_id = "${aws_route_table.private_subnet_az.id}"
+module "ldaps_security_group" {
+    source = "modules/ldaps_security_group"
+    vpc_id = "${module.vpc.id}"
+    bastion_private_ip = "${module.bastion_instance.private_ip}"
+    primary_nat_gateway_ip = "${module.vpc.primary_nat_gateway_ip}"
+    secondary_nat_gateway_ip = "${module.vpc.secondary_nat_gateway_ip}"
+    name = "${var.stack_name}"
+    description = "${var.stack_description}"
+    tag_project = "${var.stack_name}"
+    tag_environment = "${var.aws_target_env}"
 }
 
-resource "aws_route_table" "public_subnets" {
-    vpc_id = "${aws_vpc.vpc.id}"
-    route {
-        cidr_block = "0.0.0.0/0"
-        gateway_id = "${aws_internet_gateway.internet_gateway.id}"
-    }
-    tags {
-        Name = "${var.aws_stack_name}-public"
-        Description = "${var.aws_stack_description}"
-        Project = "${var.aws_stack_name}"
-        Environment = "${var.aws_target_env}"
-    }
-}
-
-resource "aws_route_table_association" "public_az_public_subnet" {
-    subnet_id = "${aws_subnet.public_az.id}"
-    route_table_id = "${aws_route_table.public_subnets.id}"
-}
-
-resource "aws_security_group" "dcproxy_nodes" {
-    name = "${var.aws_stack_name}-nodes"
-    description = "${var.aws_stack_description}"
-    vpc_id = "${aws_vpc.vpc.id}"
-    tags {
-        Name = "${var.aws_stack_name}-nodes"
-        Project = "${var.aws_stack_name}"
-        Environment = "${var.aws_target_env}"
-    }
-}
-
-resource "aws_security_group_rule" "dcproxy_nodes_ssh_from_bastion" {
-    type = "ingress"
-    from_port = 22
-    to_port = 22
-    protocol = "tcp"
-    source_security_group_id = "${aws_security_group.bastion.id}"
-    security_group_id = "${aws_security_group.dcproxy_nodes.id}"
-}
-
-resource "aws_security_group_rule" "dcproxy_nodes_http_from_all" {
-    type = "ingress"
-    from_port = 80
-    to_port = 80
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    security_group_id = "${aws_security_group.dcproxy_nodes.id}"
-}
-
-resource "aws_security_group_rule" "dcproxy_nodes_http_to_all" {
-    type = "egress"
-    from_port = 80
-    to_port = 80
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    security_group_id = "${aws_security_group.dcproxy_nodes.id}"
-}
-
-resource "aws_security_group_rule" "dcproxy_nodes_https_to_all" {
-    type = "egress"
-    from_port = 443
-    to_port = 443
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    security_group_id = "${aws_security_group.dcproxy_nodes.id}"
-}
-
-resource "aws_security_group" "bastion" {
-    name = "${var.aws_stack_name}-bastion-node"
-    description = "${var.aws_stack_description}"
-    vpc_id = "${aws_vpc.vpc.id}"
-    tags {
-        Name = "${var.aws_stack_name}-bastion-node"
-        Project = "${var.aws_stack_name}"
-        Environment = "${var.aws_target_env}"
-    }
-}
-
-resource "aws_security_group_rule" "bastion_ssh_from_london" {
-    type = "ingress"
-    from_port = 22
-    to_port = 22
-    protocol = "tcp"
-    cidr_blocks = ["***REMOVED***"]
-    security_group_id = "${aws_security_group.bastion.id}"
-}
-
-resource "aws_security_group_rule" "bastion_ssh_to_dcproxy_nodes" {
-    type = "egress"
-    from_port = 22
-    to_port = 22
-    protocol = "tcp"
-    source_security_group_id = "${aws_security_group.dcproxy_nodes.id}"
-    security_group_id = "${aws_security_group.bastion.id}"
-}
-
-resource "aws_security_group_rule" "bastion_http_to_all" {
-    type = "egress"
-    from_port = 80
-    to_port = 80
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    security_group_id = "${aws_security_group.bastion.id}"
-}
-
-resource "aws_security_group_rule" "bastion_https_to_all" {
-    type = "egress"
-    from_port = 443
-    to_port = 443
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    security_group_id = "${aws_security_group.bastion.id}"
-}
-
-resource "template_file" "dcproxy_node_user_data" {
-  template = "${file("${path.root}/${var.dcproxy_user_data}")}"
+resource "template_file" "tropics_user_data" {
+  template = "${file("${path.root}/${var.tropics_user_data}")}"
   vars {
-    tropics_dns = "${lookup(var.tropics_dns, var.aws_target_env)}"
-    ldaps_dns = "${lookup(var.ldaps_dns, var.aws_target_env)}"
-    das_dns = "${lookup(var.das_dns, var.aws_target_env)}"
+    dns = "${lookup(var.tropics_dns, var.aws_target_env)}"
     dc_dns = "${lookup(var.dc_dns, var.aws_target_env)}"
-    dc_ldaps_url = "${var.dc_ldaps_url}"
   }
 }
 
-resource "template_cloudinit_config" "dcproxy_node_config" {
+resource "template_cloudinit_config" "tropics_config" {
   gzip          = false
   base64_encode = false
   part {
     content_type = "text/x-shellscript"
-    content      = "${template_file.dcproxy_node_user_data.rendered}"
+    content      = "${template_file.tropics_user_data.rendered}"
   }
 }
 
-resource "template_file" "bastion_user_data" {
-  template = "${file("${path.root}/${var.bastion_user_data}")}"
+resource "template_file" "das_user_data" {
+  template = "${file("${path.root}/${var.das_user_data}")}"
+  vars {
+    dns = "${lookup(var.tropics_dns, var.aws_target_env)}"
+    dc_dns = "${lookup(var.dc_dns, var.aws_target_env)}"
+  }
 }
 
-resource "template_cloudinit_config" "bastion_config" {
+resource "template_cloudinit_config" "das_config" {
   gzip          = false
   base64_encode = false
   part {
     content_type = "text/x-shellscript"
-    content      = "${template_file.bastion_user_data.rendered}"
+    content      = "${template_file.das_user_data.rendered}"
   }
 }
 
-resource "aws_instance" "dcproxy_node" {
-    instance_type = "${lookup(var.dcproxy_instance_type, var.aws_target_env)}"
-    ami = "${lookup(var.aws_ami, lookup(var.aws_region, var.aws_target_env))}"
+resource "template_file" "ldaps_user_data" {
+  template = "${file("${path.root}/${var.ldaps_user_data}")}"
+  vars {
+    dns = "${lookup(var.ldaps_dns, var.aws_target_env)}"
+    dc_dns = "${lookup(var.dc_dns, var.aws_target_env)}"
+  }
+}
+
+resource "template_cloudinit_config" "ldaps_config" {
+  gzip          = false
+  base64_encode = false
+  part {
+    content_type = "text/x-shellscript"
+    content      = "${template_file.ldaps_user_data.rendered}"
+  }
+}
+
+
+
+resource "aws_instance" "primary_tropics" {
+    instance_type = "${lookup(var.tropics_instance_type, var.aws_target_env)}"
+    ami = "${lookup(var.tropics_ami, lookup(var.region, var.aws_target_env))}"
     key_name = "${lookup(var.dcproxy_key_pair, var.aws_target_env)}"
-    subnet_id = "${aws_subnet.private_az.id}"
+    subnet_id = "${module.vpc.primary_private_subnet}"
     private_ip = "10.0.1.248"
-    vpc_security_group_ids = ["${aws_security_group.dcproxy_nodes.id}"]
+    vpc_security_group_ids = ["${module.tropics_security_group.id}"]
     disable_api_termination = "false"
-    user_data = "${template_cloudinit_config.dcproxy_node_config.rendered}"
+    user_data = "${template_cloudinit_config.tropics_config.rendered}"
     tags {
-        Name = "${var.aws_stack_name}-node"
-        Description = "${var.aws_stack_description}"
-        Project = "${var.aws_stack_name}"
+        Name = "${var.stack_name}-primary-tropics"
+        Description = "${var.stack_description}"
+        Project = "${var.stack_name}"
         Environment = "${var.aws_target_env}"
     }
-    depends_on = ["aws_nat_gateway.nat_gateway"]
 }
 
-resource "aws_nat_gateway" "nat_gateway" {
-    allocation_id = "${lookup(var.aws_nat_gateway_eip, var.aws_target_env)}"
-    subnet_id = "${aws_subnet.public_az.id}"
-    depends_on = ["aws_internet_gateway.internet_gateway"]
-}
-
-resource "aws_instance" "bastion" {
-    instance_type = "${var.bastion_instance_type}"
-    ami = "${lookup(var.aws_ami, lookup(var.aws_region, var.aws_target_env))}"
-    key_name = "${lookup(var.bastion_key_pair, var.aws_target_env)}"
-    subnet_id = "${aws_subnet.public_az.id}"
-    associate_public_ip_address = "true"
-    vpc_security_group_ids = ["${aws_security_group.bastion.id}"]
+resource "aws_instance" "primary_das" {
+    instance_type = "${lookup(var.das_instance_type, var.aws_target_env)}"
+    ami = "${lookup(var.das_ami, lookup(var.region, var.aws_target_env))}"
+    key_name = "${lookup(var.dcproxy_key_pair, var.aws_target_env)}"
+    subnet_id = "${module.vpc.primary_private_subnet}"
+    private_ip = "10.0.1.247"
+    vpc_security_group_ids = ["${module.tropics_security_group.id}"]
     disable_api_termination = "false"
-    user_data = "${template_cloudinit_config.bastion_config.rendered}"
+    user_data = "${template_cloudinit_config.das_config.rendered}"
     tags {
-        Name = "${var.aws_stack_name}-bastion"
-        Description = "${var.aws_stack_description}"
-        Project = "${var.aws_stack_name}"
+        Name = "${var.stack_name}-primary-das"
+        Description = "${var.stack_description}"
+        Project = "${var.stack_name}"
         Environment = "${var.aws_target_env}"
     }
-    depends_on = ["aws_internet_gateway.internet_gateway"]
+}
+
+resource "aws_instance" "primary_ldaps" {
+    instance_type = "${lookup(var.ldaps_instance_type, var.aws_target_env)}"
+    ami = "${lookup(var.ldaps_ami, lookup(var.region, var.aws_target_env))}"
+    key_name = "${lookup(var.dcproxy_key_pair, var.aws_target_env)}"
+    subnet_id = "${module.vpc.primary_private_subnet}"
+    private_ip = "10.0.1.246"
+    vpc_security_group_ids = ["${module.tropics_security_group.id}"]
+    disable_api_termination = "false"
+    user_data = "${template_cloudinit_config.ldaps_config.rendered}"
+    tags {
+        Name = "${var.stack_name}-primary-ldaps"
+        Description = "${var.stack_description}"
+        Project = "${var.stack_name}"
+        Environment = "${var.aws_target_env}"
+    }
 }
 
 resource "aws_route53_record" "dc" {
@@ -266,7 +188,7 @@ resource "aws_route53_record" "dc" {
    name = "${lookup(var.dc_dns, var.aws_target_env)}"
    type = "A"
    ttl = "300"
-   records = ["${lookup(var.dc_ip, var.aws_target_env)}"]
+   records = ["${lookup(var.dc_ingress_ip, var.aws_target_env)}"]
 }
 
 resource "aws_route53_record" "tropics" {
@@ -274,15 +196,7 @@ resource "aws_route53_record" "tropics" {
    name = "${lookup(var.tropics_dns, var.aws_target_env)}"
    type = "A"
    ttl = "300"
-   records = ["${aws_instance.dcproxy_node.private_ip}"]
-}
-
-resource "aws_route53_record" "ldaps" {
-   zone_id = "${lookup(var.aws_hosted_zone, var.aws_target_env)}"
-   name = "${lookup(var.ldaps_dns, var.aws_target_env)}"
-   type = "A"
-   ttl = "300"
-   records = ["${aws_instance.dcproxy_node.private_ip}"]
+   records = ["${aws_instance.primary_tropics.private_ip}"]
 }
 
 resource "aws_route53_record" "das" {
@@ -290,11 +204,23 @@ resource "aws_route53_record" "das" {
    name = "${lookup(var.das_dns, var.aws_target_env)}"
    type = "A"
    ttl = "300"
-   records = ["${aws_instance.dcproxy_node.private_ip}"]
+   records = ["${aws_instance.primary_das.private_ip}"]
 }
 
-output "NAT Gateway Elastic IP" {
-    value = "${aws_nat_gateway.nat_gateway.public_ip}"
+resource "aws_route53_record" "ldaps" {
+   zone_id = "${lookup(var.aws_hosted_zone, var.aws_target_env)}"
+   name = "${lookup(var.ldaps_dns, var.aws_target_env)}"
+   type = "A"
+   ttl = "300"
+   records = ["${aws_instance.primary_ldaps.private_ip}"]
+}
+
+output "Primary NAT Gateway Public IP" {
+    value = "${module.vpc.primary_nat_gateway_eip}"
+}
+
+output "Secondary NAT Gateway Public IP" {
+    value = "${module.vpc.secondary_nat_gateway_eip}"
 }
 
 output "TROPICS Res API" {
@@ -318,17 +244,29 @@ output "LDAPS" {
 }
 
 output "VPC CIDR block" {
-    value = "${aws_vpc.vpc.cidr_block}"
+    value = "${module.vpc.cidr_block}"
 }
 
 output "VPC ID" {
-    value = "${aws_vpc.vpc.id}"
+    value = "${module.vpc.id}"
 }
 
-output "VPC Route Table ID" {
-    value = "${aws_route_table.private_subnet_az.id}"
+output "Primary Private Subnet Route Table ID" {
+    value = "${module.vpc.primary_private_route_table}"
+}
+
+output "Primary Private Subnet CIDR block" {
+    value = "${module.vpc.primary_private_cidr_block}"
+}
+
+output "Secondary Private Subnet Route Table ID" {
+    value = "${module.vpc.secondary_private_route_table}"
+}
+
+output "Secondary Private Subnet CIDR block" {
+    value = "${module.vpc.secondary_private_cidr_block}"
 }
 
 output "Bastion SSH command" {
-    value = "ssh -i ${aws_instance.bastion.key_name}.pem ec2-user@${aws_instance.bastion.public_ip}"
+    value = "ssh -i ${module.bastion_instance.key_name}.pem ec2-user@${module.bastion_instance.public_ip}"
 }

@@ -7,15 +7,18 @@ terraform_state_dir=states
 terraform_state_backup_dir=state_backups
 terraform_log_dir=logs
 terraform_log_level=ERROR
-terraform_parallelism=4
+terraform_parallelism=1
 
 apply () {
+  terraform get -no-color -update=true ./$1
   terraform apply -var aws_target_env=$2 -no-color -refresh=true -parallelism=$3 -state=./$1/$terraform_state_dir/$2.tfstate -backup=./$1/$terraform_state_backup_dir/$2.tfstate.backup ./$1
 }
 destroy () {
+  terraform get -no-color -update=true ./$1
   terraform destroy -force -var aws_target_env=$2 -no-color -refresh=true -parallelism=$3 -state=./$1/$terraform_state_dir/$2.tfstate -backup=./$1/$terraform_state_backup_dir/$2.tfstate.backup ./$1
 }
 plan () {
+  terraform get -no-color -update=true ./$1
   terraform plan -var aws_target_env=$2 -no-color -refresh=true -state=./$1/$terraform_state_dir/$2.tfstate -backup=./$1/$terraform_state_backup_dir/$2.tfstate.backup ./$1
 }
 taint () {
