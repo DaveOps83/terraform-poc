@@ -6,11 +6,11 @@ provider "aws" {
 
 module "vpc" {
     source = "modules/vpc"
-    vpc_cidr_block = "${var.vpc_cidr_block}"
-    primary_private_cidr_block = "${var.primary_private_cidr_block}"
-    primary_public_cidr_block = "${var.primary_public_cidr_block}"
-    secondary_private_cidr_block = "${var.secondary_private_cidr_block}"
-    secondary_public_cidr_block = "${var.secondary_public_cidr_block}"
+    vpc_cidr_block = "10.0.0.0/16"
+    primary_private_cidr_block = "10.0.1.0/16"
+    primary_public_cidr_block = "10.0.2.0/16"
+    secondary_private_cidr_block = "10.0.3.0/16"
+    secondary_public_cidr_block = "10.0.4.0/16"
     primary_az = "${lookup(var.primary_az, var.aws_target_env)}"
     secondary_az = "${lookup(var.secondary_az, var.aws_target_env)}"
     primary_nat_gateway_eip = "${var.primary_nat_gateway_eip}"

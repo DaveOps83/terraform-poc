@@ -33,10 +33,6 @@ variable "region" {
 }
 
 #Networking variables
-variable "vpc_cidr_block" {
-    description = "CIDR block of the VPC."
-    default = "10.0.0.0/16"
-}
 
 variable "primary_az" {
     description = "Primary AWS availability zone in which to launch stack."
@@ -58,30 +54,7 @@ variable "secondary_az" {
     }
 }
 
-variable "primary_private_cidr_block" {
-    description = "CIDR block of primary private subnet."
-    default = "10.0.1.0/16"
-}
-variable "primary_public_cidr_block" {
-    description = "CIDR block of primary public subnet."
-    default = "10.0.2.0/16"
-}
-
-variable "secondary_private_cidr_block" {
-    description = "CIDR block of secondary private subnet."
-    default = "10.0.3.0/16"
-}
-
-variable "secondary_public_cidr_block" {
-    description = "CIDR block of secondary private subnet."
-    default = "10.0.4.0/16"
-}
-
 #Common instance variables
-variable "common_user_data" {
-    default = "user_data/common.sh"
-    description = "AWS user_data script for common bootstrapping steps."
-}
 
 variable "dcproxy_key_pair" {
     description = "AWS key pair to use when launching dcproxy instances."
