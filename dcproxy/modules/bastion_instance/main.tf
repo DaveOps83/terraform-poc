@@ -12,9 +12,9 @@ resource "template_cloudinit_config" "bastion" {
 }
 
 resource "aws_instance" "bastion" {
-    instance_type = "${lookup(var.bastion_instance_type, var.bastion_tag_environment)}"
-    ami = "${lookup(var.bastion_ami, var.bastion_tag_environment)}"
-    key_name = "${lookup(var.bastion_key_pair, var.bastion_tag_environment)}"
+    instance_type = "${var.bastion_instance_type}"
+    ami = "${var.bastion_ami}"
+    key_name = "${var.bastion_key_pair}"
     subnet_id = "${var.bastion_subnet}"
     associate_public_ip_address = "true"
     vpc_security_group_ids = ["${var.bastion_security_group}"]

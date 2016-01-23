@@ -33,7 +33,6 @@ variable "region" {
 }
 
 #Networking variables
-
 variable "primary_az" {
     description = "Primary AWS availability zone in which to launch stack."
     default = {
@@ -54,16 +53,23 @@ variable "secondary_az" {
     }
 }
 
-#Common instance variables
-
-variable "dcproxy_key_pair" {
-    description = "AWS key pair to use when launching dcproxy instances."
+#Bastion instance variables
+variable "bastion_ami" {
+    description = "AWS AMI to use when launching bastion instances in our chosen regions."
     default = {
-        dev = "dcproxy-nodes-dev"
-        qa = "dcproxy-nodes-qa"
-        uat = "dcproxy-nodes-uat"
-        prod = "dcproxy-nodes-prod"
+        eu-west-1 = "ami-bff32ccc"
+        us-east-1 = "ami-60b6c60a"
     }
+}
+
+variable "bastion_key_pair" {
+  description = "AWS key pair to use when launching the bastion instance."
+  default = {
+      dev = "dcproxy-bastion-dev"
+      qa = "dcproxy-bastion-qa"
+      uat = "dcproxy-bastion-uat"
+      prod = "dcproxy-bastion-prod"
+  }
 }
 
 #TROPICS instance variables
@@ -85,18 +91,13 @@ variable "tropics_instance_type" {
     }
 }
 
-variable "tropics_user_data" {
-    default = "user_data/tropics.sh"
-    description = "AWS user_data script for bootstrapping dcproxy TROPICS instances."
-}
-
-variable "tropics_dns" {
-    description = "Internal DNS record name for TROPICS."
+variable "tropics_key_pair" {
+    description = "AWS key pair to use when launching TROPICS instances."
     default = {
-        dev = "tropics.dev.travcorpservices.com"
-        qa = "tropics.qa.travcorpservices.com"
-        uat = "tropics.uat.travcorpservices.com"
-        prod = "tropics.prod.travcorpservices.com"
+        dev = "dcproxy-nodes-dev"
+        qa = "dcproxy-nodes-qa"
+        uat = "dcproxy-nodes-uat"
+        prod = "dcproxy-nodes-prod"
     }
 }
 
@@ -119,18 +120,13 @@ variable "das_instance_type" {
     }
 }
 
-variable "das_user_data" {
-    default = "user_data/das.sh"
-    description = "AWS user_data script for bootstrapping dcproxy DAS instances."
-}
-
-variable "das_dns" {
-    description = "Internal DNS record name for Data Access Services."
+variable "das_key_pair" {
+    description = "AWS key pair to use when launching DAS instances."
     default = {
-        dev = "das.dev.travcorpservices.com"
-        qa = "das.qa.travcorpservices.com"
-        uat = "das.uat.travcorpservices.com"
-        prod = "das.prod.travcorpservices.com"
+        dev = "dcproxy-nodes-dev"
+        qa = "dcproxy-nodes-qa"
+        uat = "dcproxy-nodes-uat"
+        prod = "dcproxy-nodes-prod"
     }
 }
 
@@ -153,18 +149,13 @@ variable "ldaps_instance_type" {
     }
 }
 
-variable "ldaps_user_data" {
-    default = "user_data/ldaps.sh"
-    description = "AWS user_data script for bootstrapping LDAPS instances."
-}
-
-variable "ldaps_dns" {
-    description = "Internal DNS record name for LDAPS."
+variable "ldaps_key_pair" {
+    description = "AWS key pair to use when launching LDAPS instances."
     default = {
-        dev = "ldaps.dev.travcorpservices.com"
-        qa = "ldaps.qa.travcorpservices.com"
-        uat = "ldaps.uat.travcorpservices.com"
-        prod = "ldaps.prod.travcorpservices.com"
+        dev = "dcproxy-nodes-dev"
+        qa = "dcproxy-nodes-qa"
+        uat = "dcproxy-nodes-uat"
+        prod = "dcproxy-nodes-prod"
     }
 }
 
@@ -190,7 +181,7 @@ variable "secondary_nat_gateway_eip" {
 }
 
 #Common DNS variables
-variable "aws_hosted_zone" {
+variable "hosted_zone_id" {
     description = "AWS hosted zone ID for DNS record creation."
     default = {
         dev = "***REMOVED***"
@@ -200,19 +191,9 @@ variable "aws_hosted_zone" {
     }
 }
 
-variable "dc_dns" {
-    description = "Public IP of the TTC data centre endpoint."
-    default = {
-        dev = "dc.dev.travcorpservices.com"
-        qa = "dc.qa.travcorpservices.com"
-        uat = "dc.uat.travcorpservices.com"
-        prod = "dc.prod.travcorpservices.com"
-    }
-}
-
 #TTC datacentre variables
 variable "dc_ingress_ip" {
-    description = "Public inbound IP of the TTC data centre service integration."
+    description = "Public IP of the TTC data centre service integration point."
     default = {
         dev = "***REMOVED***"
         qa = "***REMOVED***"
