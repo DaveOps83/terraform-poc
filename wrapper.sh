@@ -7,7 +7,7 @@ terraform_state_dir=states
 terraform_state_backup_dir=state_backups
 terraform_log_dir=logs
 terraform_log_level=ERROR
-terraform_parallelism=1
+terraform_parallelism=4
 
 apply () {
   terraform get -no-color -update=true ./$1

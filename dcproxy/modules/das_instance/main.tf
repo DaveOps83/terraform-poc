@@ -19,8 +19,8 @@ resource "aws_instance" "das" {
     ami = "${var.das_ami}"
     key_name = "${var.das_key_pair}"
     subnet_id = "${var.das_subnet}"
-    private_ip = "${var.das_private_ip}"
     vpc_security_group_ids = ["${var.das_security_group}"]
+    monitoring = "true"
     disable_api_termination = "false"
     user_data = "${template_cloudinit_config.das.rendered}"
     tags {

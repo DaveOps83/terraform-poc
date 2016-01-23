@@ -2,7 +2,6 @@ variable "tropics_ami" {}
 variable "tropics_instance_type" {}
 variable "tropics_key_pair" {}
 variable "tropics_subnet" {}
-variable "tropics_private_ip" {}
 variable "tropics_security_group" {}
 variable "tropics_tag_name" {}
 variable "tropics_tag_description" {}

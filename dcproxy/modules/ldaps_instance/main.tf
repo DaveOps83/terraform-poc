@@ -19,8 +19,8 @@ resource "aws_instance" "ldaps" {
     ami = "${var.ldaps_ami}"
     key_name = "${var.ldaps_key_pair}"
     subnet_id = "${var.ldaps_subnet}"
-    private_ip = "${var.ldaps_private_ip}"
     vpc_security_group_ids = ["${var.ldaps_security_group}"]
+    monitoring = "true"
     disable_api_termination = "false"
     user_data = "${template_cloudinit_config.ldaps.rendered}"
     tags {

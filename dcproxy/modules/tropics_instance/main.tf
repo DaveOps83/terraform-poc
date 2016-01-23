@@ -19,8 +19,8 @@ resource "aws_instance" "tropics" {
     ami = "${var.tropics_ami}"
     key_name = "${var.tropics_key_pair}"
     subnet_id = "${var.tropics_subnet}"
-    private_ip = "${var.tropics_private_ip}"
     vpc_security_group_ids = ["${var.tropics_security_group}"]
+    monitoring = "true"
     disable_api_termination = "false"
     user_data = "${template_cloudinit_config.tropics.rendered}"
     tags {

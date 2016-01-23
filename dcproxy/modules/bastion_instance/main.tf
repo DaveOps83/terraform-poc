@@ -18,6 +18,7 @@ resource "aws_instance" "bastion" {
     subnet_id = "${var.bastion_subnet}"
     associate_public_ip_address = "true"
     vpc_security_group_ids = ["${var.bastion_security_group}"]
+    monitoring = "true"
     disable_api_termination = "false"
     user_data = "${template_cloudinit_config.bastion.rendered}"
     tags {
