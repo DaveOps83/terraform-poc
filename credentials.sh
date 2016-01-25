@@ -19,8 +19,8 @@ case $1 in
     export TF_VAR_aws_secret_key=""
     ;;
   prod)
-    export TF_VAR_aws_access_key="***REMOVED***"
-    export TF_VAR_aws_secret_key="***REMOVED***"
+    export TF_VAR_aws_access_key=""
+    export TF_VAR_aws_secret_key=""
     ;;
 esac
 if [[ -z $TF_VAR_aws_access_key || -z $TF_VAR_aws_secret_key ]] ;
