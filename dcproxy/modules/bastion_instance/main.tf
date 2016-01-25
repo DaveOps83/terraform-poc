@@ -4,7 +4,7 @@ resource "template_file" "bastion_user_data" {
 
 resource "template_cloudinit_config" "bastion" {
   gzip          = false
-  base64_encode = true
+  base64_encode = false
   part {
     content_type = "text/x-shellscript"
     content      = "${template_file.bastion_user_data.rendered}"

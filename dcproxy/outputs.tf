@@ -1,0 +1,14 @@
+output "Primary NAT Gateway Public IP" { value = "${module.vpc.primary_nat_gateway_eip}" }
+output "Secondary NAT Gateway Public IP" { value = "${module.vpc.secondary_nat_gateway_eip}" }
+output "TROPICS Res API" { value = "http://${module.dns.tropics_dns}/tropics/TropicsWS" }
+output "TROPICS Build API" { value = "http://${module.dns.tropics_dns}/tropics/TropicsBuildWS" }
+output "TROPICS Customer Sync API" { value = "http://${module.dns.tropics_dns}/tropics/CustomerSyncWS" }
+output "Data Access Services" { value = "http://${module.dns.das_dns}/DataAccessServices/OracleDataService.svc" }
+output "LDAPS" { value = "http://${module.dns.ldaps_dns}" }
+output "VPC CIDR block" { value = "${module.vpc.cidr_block}" }
+output "VPC ID" { value = "${module.vpc.id}" }
+output "Primary Private Subnet Route Table ID" { value = "${module.vpc.primary_private_route_table}" }
+output "Primary Private Subnet CIDR block" { value = "${module.vpc.primary_private_cidr_block}" }
+output "Secondary Private Subnet Route Table ID" { value = "${module.vpc.secondary_private_route_table}" }
+output "Secondary Private Subnet CIDR block" { value = "${module.vpc.secondary_private_cidr_block}" }
+output "Bastion SSH command" { value = "ssh -i ${module.bastion_instance.key_name}.pem ec2-user@${module.bastion_instance.public_ip}" }

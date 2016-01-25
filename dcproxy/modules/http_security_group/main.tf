@@ -27,20 +27,20 @@ resource "aws_security_group_rule" "http_from_all" {
     security_group_id = "${aws_security_group.group.id}"
 }
 
-resource "aws_security_group_rule" "http_to_nat_gateways" {
+resource "aws_security_group_rule" "http_to_all" {
     type = "egress"
     from_port = 80
     to_port = 80
     protocol = "tcp"
-    cidr_blocks = ["${var.http_security_group_primary_nat_gateway_ip}/32", "${var.http_security_group_secondary_nat_gateway_ip}/32"]
+    cidr_blocks = ["0.0.0.0/0"]
     security_group_id = "${aws_security_group.group.id}"
 }
 
-resource "aws_security_group_rule" "https_to_nat_gateways" {
+resource "aws_security_group_rule" "https_to_all" {
     type = "egress"
     from_port = 443
     to_port = 443
     protocol = "tcp"
-    cidr_blocks = ["${var.http_security_group_primary_nat_gateway_ip}/32", "${var.http_security_group_secondary_nat_gateway_ip}/32"]
+    cidr_blocks = ["0.0.0.0/0"]
     security_group_id = "${aws_security_group.group.id}"
 }

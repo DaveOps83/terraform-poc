@@ -7,7 +7,7 @@ resource "template_file" "tropics_user_data" {
 
 resource "template_cloudinit_config" "tropics" {
   gzip          = false
-  base64_encode = true
+  base64_encode = false
   part {
     content_type = "text/x-shellscript"
     content      = "${template_file.tropics_user_data.rendered}"

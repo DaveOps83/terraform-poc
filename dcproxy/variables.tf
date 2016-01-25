@@ -1,27 +1,20 @@
-#Parameter variables
 variable "aws_target_env" {
   description = "Target AWS environment abbreviation in LOWERCASE - [dev/qa/uat/prod]"
 }
-
 variable "aws_access_key" {
   description = "AWS API access key for the target environment. Value sourced from the TF_VAR_aws_access_key environment variable."
 }
-
 variable "aws_secret_key" {
   description = "AWS API secret key for the target environment. Value sourced from the TF_VAR_aws_secret_key environment variable."
 }
-
-#Generic variables
 variable "stack_name" {
   description = "Name tag value to be used for all resources within the stack."
   default = "dcproxy"
 }
-
 variable "stack_description" {
   description = "Description tag value to be used for all resources within the stack."
   default = "Datacentre proxy resource - do not delete or modify"
 }
-
 variable "region" {
     description = "AWS region in which to launch stack."
     default = {
@@ -31,8 +24,6 @@ variable "region" {
         prod = "us-east-1"
     }
 }
-
-#Networking variables
 variable "primary_az" {
     description = "Primary AWS availability zone in which to launch stack."
     default = {
@@ -42,7 +33,6 @@ variable "primary_az" {
         prod = "us-east-1b"
     }
 }
-
 variable "secondary_az" {
     description = "Secondary AWS availability zone in which to launch stack."
     default = {
@@ -52,8 +42,6 @@ variable "secondary_az" {
         prod = "us-east-1c"
     }
 }
-
-#Bastion instance variables
 variable "bastion_ami" {
     description = "AWS AMI to use when launching bastion instances in our chosen regions."
     default = {
@@ -61,7 +49,6 @@ variable "bastion_ami" {
         us-east-1 = "ami-60b6c60a"
     }
 }
-
 variable "bastion_key_pair" {
   description = "AWS key pair to use when launching the bastion instance."
   default = {
@@ -71,8 +58,6 @@ variable "bastion_key_pair" {
       prod = "dcproxy-bastion-prod"
   }
 }
-
-#TROPICS instance variables
 variable "tropics_ami" {
     description = "AWS AMI to use when launching TROPICS instances in our chosen regions."
     default = {
@@ -80,7 +65,6 @@ variable "tropics_ami" {
         us-east-1 = "ami-60b6c60a"
     }
 }
-
 variable "tropics_instance_type" {
     description = "AWS instance type to use when launching TROPICS instances."
     default = {
@@ -90,7 +74,6 @@ variable "tropics_instance_type" {
         prod = "t2.nano"
     }
 }
-
 variable "tropics_key_pair" {
     description = "AWS key pair to use when launching TROPICS instances."
     default = {
@@ -100,8 +83,6 @@ variable "tropics_key_pair" {
         prod = "dcproxy-nodes-prod"
     }
 }
-
-#DAS instance variables
 variable "das_ami" {
     description = "AWS AMI to use when launching DAS instances in our chosen regions."
     default = {
@@ -109,7 +90,6 @@ variable "das_ami" {
         us-east-1 = "ami-60b6c60a"
     }
 }
-
 variable "das_instance_type" {
     description = "AWS instance type to use when launching DAS instances."
     default = {
@@ -119,7 +99,6 @@ variable "das_instance_type" {
         prod = "t2.nano"
     }
 }
-
 variable "das_key_pair" {
     description = "AWS key pair to use when launching DAS instances."
     default = {
@@ -129,8 +108,6 @@ variable "das_key_pair" {
         prod = "dcproxy-nodes-prod"
     }
 }
-
-#LDAPS instance variables
 variable "ldaps_ami" {
     description = "AWS AMI to use when launching LDAPS instances in our chosen regions."
     default = {
@@ -138,7 +115,6 @@ variable "ldaps_ami" {
         us-east-1 = "ami-60b6c60a"
     }
 }
-
 variable "ldaps_instance_type" {
     description = "AWS instance type to use when launching LDAPS instances."
     default = {
@@ -148,7 +124,6 @@ variable "ldaps_instance_type" {
         prod = "t2.nano"
     }
 }
-
 variable "ldaps_key_pair" {
     description = "AWS key pair to use when launching LDAPS instances."
     default = {
@@ -158,8 +133,6 @@ variable "ldaps_key_pair" {
         prod = "dcproxy-nodes-prod"
     }
 }
-
-#NAT gateway variables
 variable "primary_nat_gateway_eip" {
     description = "AWS elastic IP allocation ID for the primary NAT gateway."
     default = {
@@ -169,18 +142,15 @@ variable "primary_nat_gateway_eip" {
         prod = "eipalloc-6136a605"
     }
 }
-
 variable "secondary_nat_gateway_eip" {
     description = "AWS elastic IP allocation ID for the secondary NAT gateway."
     default = {
         dev = ""
         qa = ""
-        uat = ""
+        uat = "eipalloc-210c8145"
         prod = "eipalloc-f32cb397"
     }
 }
-
-#Common DNS variables
 variable "hosted_zone_id" {
     description = "AWS hosted zone ID for DNS record creation."
     default = {
@@ -190,8 +160,6 @@ variable "hosted_zone_id" {
         prod = "***REMOVED***"
     }
 }
-
-#TTC datacentre variables
 variable "dc_ingress_ip" {
     description = "Public IP of the TTC data centre service integration point."
     default = {
@@ -201,12 +169,10 @@ variable "dc_ingress_ip" {
         prod = "***REMOVED***"
     }
 }
-
 variable "dc_egress_range" {
     description = "Public outbound IP range of the TTC data centre for bastion connectivity."
     default = "***REMOVED***"
 }
-
 variable "dc_ldaps_url" {
     description = "Public inbound IP of the TTC data centre endpoint."
     default = "***REMOVED***"

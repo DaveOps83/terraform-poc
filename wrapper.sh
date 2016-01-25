@@ -1,6 +1,11 @@
 #!/bin/bash
 #Wrapper script to build and destroy Terraform controlled VPCs.
-script_usage="wrapper.sh [apply|destroy|plan|taint] [project folder] [dev|qa|uat|prod] [resource to taint (optional)]"
+script_usage="Usage:  ./wrapper.sh [apply|destroy|plan|taint] [project folder] [dev|qa|uat|prod] [resource to taint (optional)] \n
+Examples: \n
+ ./wrapper.sh plan dcproxy dev \n
+ ./wrapper.sh apply dcproxy dev \n
+ ./wrapper.sh destroy dcproxy dev \n
+ ./wrapper.sh taint dcproxy dev template_cloudinit_config.dcproxy_node_config"
 aws_env_regex='^(dev|qa|uat|prod)$'
 terraform_cmd_regex='^(apply|destroy|plan|taint)$'
 terraform_state_dir=states
@@ -25,7 +30,7 @@ taint () {
   terraform taint -state=./$1/$terraform_state_dir/$2.tfstate -backup=./$1/$terraform_state_backup_dir/$2.tfstate.backup $3
 }
 
-if [[ $# -eq 3 || $# -eq 4 && $1 =~ $terraform_cmd_regex && -d $(pwd)/$2 && $3 =~ $aws_env_regex ]] ;
+if [[ ($# -eq 3 || ($# -eq 4)) && $1 =~ $terraform_cmd_regex && -d $(pwd)/$2 && $3 =~ $aws_env_regex ]] ;
 then
   for i in $terraform_state_dir $terraform_state_backup_dir $terraform_log_dir ;
   do

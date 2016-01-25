@@ -50,8 +50,6 @@ module "tropics_security_group" {
     source = "modules/http_security_group"
     http_security_group_vpc_id = "${module.vpc.id}"
     http_security_group_bastion_private_ip = "${module.bastion_instance.private_ip}"
-    http_security_group_primary_nat_gateway_ip = "${module.vpc.primary_nat_gateway_ip}"
-    http_security_group_secondary_nat_gateway_ip = "${module.vpc.secondary_nat_gateway_ip}"
     http_security_group_name = "${var.stack_name}-tropics"
     http_security_group_description = "${var.stack_description}"
     http_security_group_tag_project = "${var.stack_name}"
@@ -90,8 +88,6 @@ module "das_security_group" {
     source = "modules/http_security_group"
     http_security_group_vpc_id = "${module.vpc.id}"
     http_security_group_bastion_private_ip = "${module.bastion_instance.private_ip}"
-    http_security_group_primary_nat_gateway_ip = "${module.vpc.primary_nat_gateway_ip}"
-    http_security_group_secondary_nat_gateway_ip = "${module.vpc.secondary_nat_gateway_ip}"
     http_security_group_name = "${var.stack_name}-das"
     http_security_group_description = "${var.stack_description}"
     http_security_group_tag_project = "${var.stack_name}"
@@ -130,8 +126,6 @@ module "ldaps_security_group" {
     source = "modules/ldaps_security_group"
     ldaps_security_group_vpc_id = "${module.vpc.id}"
     ldaps_security_group_bastion_private_ip = "${module.bastion_instance.private_ip}"
-    ldaps_security_group_primary_nat_gateway_ip = "${module.vpc.primary_nat_gateway_ip}"
-    ldaps_security_group_secondary_nat_gateway_ip = "${module.vpc.secondary_nat_gateway_ip}"
     ldaps_security_group_name = "${var.stack_name}-ldaps"
     ldaps_security_group_description = "${var.stack_description}"
     ldaps_security_group_tag_project = "${var.stack_name}"
@@ -177,60 +171,4 @@ module "dns" {
     dns_primary_das_instance_private_ip = "${module.primary_das_instance.private_ip}"
     dns_ldaps_dns = "ldaps.${var.aws_target_env}.travcorpservices.com"
     dns_primary_ldaps_instance_private_ip = "${module.primary_ldaps_instance.private_ip}"
-}
-
-output "Primary NAT Gateway Public IP" {
-    value = "${module.vpc.primary_nat_gateway_eip}"
-}
-
-output "Secondary NAT Gateway Public IP" {
-    value = "${module.vpc.secondary_nat_gateway_eip}"
-}
-
-output "TROPICS Res API" {
-    value = "http://${module.dns.tropics_dns}/tropics/TropicsWS"
-}
-
-output "TROPICS Build API" {
-    value = "http://${module.dns.tropics_dns}/tropics/TropicsBuildWS"
-}
-
-output "TROPICS Customer Sync API" {
-    value = "http://${module.dns.tropics_dns}/tropics/CustomerSyncWS"
-}
-
-output "Data Access Services" {
-    value = "http://${module.dns.das_dns}/DataAccessServices/OracleDataService.svc"
-}
-
-output "LDAPS" {
-    value = "http://${module.dns.ldaps_dns}"
-}
-
-output "VPC CIDR block" {
-    value = "${module.vpc.cidr_block}"
-}
-
-output "VPC ID" {
-    value = "${module.vpc.id}"
-}
-
-output "Primary Private Subnet Route Table ID" {
-    value = "${module.vpc.primary_private_route_table}"
-}
-
-output "Primary Private Subnet CIDR block" {
-    value = "${module.vpc.primary_private_cidr_block}"
-}
-
-output "Secondary Private Subnet Route Table ID" {
-    value = "${module.vpc.secondary_private_route_table}"
-}
-
-output "Secondary Private Subnet CIDR block" {
-    value = "${module.vpc.secondary_private_cidr_block}"
-}
-
-output "Bastion SSH command" {
-    value = "ssh -i ${module.bastion_instance.key_name}.pem ec2-user@${module.bastion_instance.public_ip}"
 }
