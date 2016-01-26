@@ -10,6 +10,16 @@ resource "aws_vpc" "vpc" {
     }
 }
 
+resource "aws_internet_gateway" "internet_gateway" {
+    vpc_id = "${aws_vpc.vpc.id}"
+    tags {
+        Name = "${var.vpc_name_tag}"
+        Description = "${var.vpc_description_tag}"
+        Project = "${var.vpc_name_tag}"
+        Environment = "${var.vpc_environment_tag}"
+    }
+}
+
 resource "aws_subnet" "primary_private" {
     vpc_id = "${aws_vpc.vpc.id}"
     cidr_block = "${var.vpc_primary_private_cidr_block}"
@@ -152,16 +162,6 @@ resource "aws_nat_gateway" "secondary_nat_gateway" {
     allocation_id = "${var.vpc_secondary_nat_gateway_eip}"
     subnet_id = "${aws_subnet.secondary_public.id}"
     depends_on = ["aws_internet_gateway.internet_gateway"]
-}
-
-resource "aws_internet_gateway" "internet_gateway" {
-    vpc_id = "${aws_vpc.vpc.id}"
-    tags {
-        Name = "${var.vpc_name_tag}"
-        Description = "${var.vpc_description_tag}"
-        Project = "${var.vpc_name_tag}"
-        Environment = "${var.vpc_environment_tag}"
-    }
 }
 
 resource "aws_iam_role" "flow_log_role" {

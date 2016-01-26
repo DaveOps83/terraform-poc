@@ -11,4 +11,4 @@ output "Primary Private Subnet Route Table ID" { value = "${module.vpc.primary_p
 output "Primary Private Subnet CIDR block" { value = "${module.vpc.primary_private_cidr_block}" }
 output "Secondary Private Subnet Route Table ID" { value = "${module.vpc.secondary_private_route_table}" }
 output "Secondary Private Subnet CIDR block" { value = "${module.vpc.secondary_private_cidr_block}" }
-output "Bastion SSH command" { value = "ssh -i ${module.bastion_instance.key_name}.pem ec2-user@${module.bastion_instance.public_ip}" }
+output "Bastion SSH command" { value = "ssh -i ${module.bastion_instance.key_name}.pem ec2-user@${module.dns.bastion_dns}" }

@@ -1,9 +1,0 @@
-variable "bastion_ami" {}
-variable "bastion_instance_type" {}
-variable "bastion_key_pair" {}
-variable "bastion_subnet" {}
-variable "bastion_security_group" {}
-variable "bastion_tag_name" {}
-variable "bastion_tag_description" {}
-variable "bastion_tag_project" {}
-variable "bastion_tag_environment" {}

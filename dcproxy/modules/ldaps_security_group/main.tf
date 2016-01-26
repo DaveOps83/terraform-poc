@@ -4,7 +4,7 @@ resource "aws_security_group" "group" {
     vpc_id = "${var.ldaps_security_group_vpc_id}"
     tags {
         Name = "${var.ldaps_security_group_name}"
-        Project = "${var.ldaps_security_group_name}"
+        Project = "${var.ldaps_security_group_tag_project}"
         Environment = "${var.ldaps_security_group_tag_environment}"
     }
 }
@@ -14,7 +14,7 @@ resource "aws_security_group_rule" "ssh_from_bastion" {
     from_port = 22
     to_port = 22
     protocol = "tcp"
-    cidr_blocks = ["${var.ldaps_security_group_bastion_private_ip}/32"]
+    source_security_group_id  = "${var.ldaps_security_group_bastion_security_group}"
     security_group_id = "${aws_security_group.group.id}"
 }
 

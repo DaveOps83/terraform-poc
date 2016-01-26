@@ -42,6 +42,15 @@ variable "secondary_az" {
         prod = "us-east-1c"
     }
 }
+variable "ssl_cert" {
+    description = "AWS ARN of the SSL certificate."
+    default = {
+        dev = "***REMOVED***"
+        qa = "***REMOVED***"
+        uat = "***REMOVED***"
+        prod = "***REMOVED***"
+    }
+}
 variable "bastion_ami" {
     description = "AWS AMI to use when launching bastion instances in our chosen regions."
     default = {
@@ -125,6 +134,31 @@ variable "ldaps_instance_type" {
     }
 }
 variable "ldaps_key_pair" {
+    description = "AWS key pair to use when launching LDAPS instances."
+    default = {
+        dev = "dcproxy-nodes-dev"
+        qa = "dcproxy-nodes-qa"
+        uat = "dcproxy-nodes-uat"
+        prod = "dcproxy-nodes-prod"
+    }
+}
+variable "tour_api_ami" {
+    description = "AWS AMI to use when launching LDAPS instances in our chosen regions."
+    default = {
+        eu-west-1 = "ami-bff32ccc"
+        us-east-1 = "ami-60b6c60a"
+    }
+}
+variable "tour_api_instance_type" {
+    description = "AWS instance type to use when launching LDAPS instances."
+    default = {
+        dev = "t2.nano"
+        qa = "t2.nano"
+        uat = "t2.nano"
+        prod = "t2.nano"
+    }
+}
+variable "tour_api_key_pair" {
     description = "AWS key pair to use when launching LDAPS instances."
     default = {
         dev = "dcproxy-nodes-dev"
