@@ -5,8 +5,8 @@
 #This repository's index has been updated to ignore changes to this file:
 #git update-index --assume-unchanged credentials.sh
 #DO NOT PUSH API KEYS TO GITHUB!!!!
-export TF_VAR_artifactory_user=""
-export TF_VAR_artifactory_password=""
+export artifactory_user=""
+export artifactory_password=""
 case $1 in
   dev)
     export TF_VAR_aws_access_key=""
@@ -29,7 +29,7 @@ if [[ -z $TF_VAR_aws_access_key || -z $TF_VAR_aws_secret_key ]] ;
 then
   echo -e "Please set API credentials for $1 in credentials.sh"
   exit 1
-elif [[ -z $TF_VAR_artifactory_user || -z $TF_VAR_artifactory_password ]] ;
+elif [[ -z $artifactory_user || -z $artifactory_password ]] ;
 then
   echo -e "Please set Artifactory credentials in credentials.sh"
   exit 1
