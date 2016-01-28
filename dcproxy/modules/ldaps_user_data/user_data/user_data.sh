@@ -18,7 +18,9 @@ http {
     server {
         listen 80;
         location / {
-            proxy_pass https://${dc_dns};
+            access_log off;
+            return 200;
+            #proxy_pass https://${dc_dns};
         }
     }
 }

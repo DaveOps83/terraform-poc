@@ -22,7 +22,9 @@ http {
             return 200;
         }
         location / {
-            proxy_pass https://${dc_dns};
+            access_log off;
+            return 200;
+            #proxy_pass https://${dc_dns};
         }
     }
 }

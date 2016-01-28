@@ -1,70 +1,128 @@
-#!/bin/bash
-#Wrapper script to build and destroy Terraform controlled VPCs.
-script_usage="Usage:  ./wrapper.sh [apply|destroy|plan|taint|output] [project folder] [dev|qa|uat|prod] [resource to taint \ module state to parse for output (optional)] \n
-Examples: \n
- ./wrapper.sh plan dcproxy dev \n
- ./wrapper.sh apply dcproxy dev \n
- ./wrapper.sh destroy dcproxy dev \n
- ./wrapper.sh taint dcproxy dev template_cloudinit_config.dcproxy_node_config \n \
- ./wrapper.sh output dcproxy dev vpc"
-aws_env_regex='^(dev|qa|uat|prod)$'
-terraform_cmd_regex='^(apply|destroy|plan|taint|output)$'
-terraform_state_dir=states
-terraform_state_backup_dir=state_backups
-terraform_log_dir=logs
-terraform_log_level=DEBUG
-terraform_parallelism=2
+#!/bin/bash -u
+set -o pipefail
+aws_envs="dev|qa|uat|prod"
+aws_env_regex="^(${aws_envs})$"
+terraform_cmds="apply|destroy|plan|taint|show|output"
+terraform_cmd_regex="^(${terraform_cmds})$"
 
-apply () {
-  terraform get -no-color -update=true ./$1
-  terraform apply -var aws_target_env=$2 -no-color -refresh=true -parallelism=$3 -state=./$1/$terraform_state_dir/$2.tfstate -backup=./$1/$terraform_state_backup_dir/$2.tfstate.backup ./$1
-}
-destroy () {
-  terraform get -no-color -update=true ./$1
-  terraform destroy -force -var aws_target_env=$2 -no-color -refresh=true -parallelism=$3 -state=./$1/$terraform_state_dir/$2.tfstate -backup=./$1/$terraform_state_backup_dir/$2.tfstate.backup ./$1
-}
-plan () {
-  terraform get -no-color -update=true ./$1
-  terraform plan -var aws_target_env=$2 -no-color -refresh=true -state=./$1/$terraform_state_dir/$2.tfstate -backup=./$1/$terraform_state_backup_dir/$2.tfstate.backup ./$1
-}
-taint () {
-  terraform taint -no-color -state=./$1/$terraform_state_dir/$2.tfstate -backup=./$1/$terraform_state_backup_dir/$2.tfstate.backup $3
-}
-output () {
-  if [[ $# -eq 3 ]] ;
-  then
-    terraform output -no-color -state=./$1/$terraform_state_dir/$2.tfstate -module=$3
-  else
-    terraform output -no-color -state=./$1/$terraform_state_dir/$2.tfstate
-  fi
-}
-
-if [[ ($# -eq 3 || ($# -eq 4)) && $1 =~ $terraform_cmd_regex && -d $(pwd)/$2 && $3 =~ $aws_env_regex ]] ;
-then
-  for i in $terraform_state_dir $terraform_state_backup_dir $terraform_log_dir ;
-  do
-    if [ ! -d "$2/$i" ] ;
-    then
-      mkdir $2/$i
-    fi
-  done
-  export TF_LOG=$terraform_log_level
-  export TF_LOG_PATH=./$2/$terraform_log_dir/$3.log
-  source ./credentials.sh $3
-  case $1 in
-    apply)
-        apply $2 $3 $terraform_parallelism ;;
-    destroy)
-        destroy $2 $3 $terraform_parallelism ;;
-    plan)
-        plan $2 $3 ;;
-    taint)
-        taint $2 $3 $4 ;;
-    output)
-        output $2 $3 $4 ;;
-    esac
-else
-  echo -e $script_usage
+function help () {
+  echo "Usage:  ./wrapper.sh \
+  [$terraform_cmds] \
+  [config folder] \
+  [$aws_envs] \
+  [optional module or resource for output or taint commands] \
+  [optional module resource for taint command]"
   exit 1
+}
+
+#Check if all the required arguments have been passed and if their values are correct
+if [[ ($# -eq 3 || $# -eq 5) && ! $1 =~ $terraform_cmd_regex || ! -d $(pwd)/$2 || ! $3 =~ $aws_env_regex ]] ; then
+  help
 fi
+
+#Set script arguments variable names to be more meaningful.
+terraform_cmd=$1
+terraform_config=$2
+terraform_env=$3
+terraform_module=${4:-""}
+terraform_resource=${5:-""}
+
+#Set up the environment
+terraform_env_file=".terraform/environment"
+terraform_previous_env=$([ -f $terraform_env_file ] && echo "$(<$terraform_env_file)" || echo "unknown")
+terraform_parallelism=2
+terraform_log_dir="$terraform_config/logs"
+terraform_log_level="DEBUG"
+export TF_LOG=$terraform_log_level
+export TF_LOG_PATH=$terraform_log_dir/$terraform_env.log
+terraform_credentials="credentials.sh"
+source $terraform_credentials $terraform_env
+
+#Check to see if we changed environments so we can update the remote config source.
+if [[ $terraform_previous_env != ${terraform_config}_$terraform_env || ! -f ./.terraform/terraform.tfstate ]]; then
+  mv -f .terraform/terraform.tfstate .terraform/terraform.tfstate.$terraform_previous_env > /dev/null 2>&1
+  mv -f .terraform/terraform.tfstate.backup .terraform/terraform.tfstate.backup.$terraform_previous_env > /dev/null 2>&1
+  terraform remote config \
+    -backend=artifactory \
+    -backend-config=url=$artifactory_url \
+    -backend-config=repo=$artifactory_repo \
+    -backend-config=subpath=$terraform_config/$terraform_env \
+    -backup=-
+  echo ${terraform_config}_$terraform_env > $terraform_env_file
+fi
+
+#Create the logs directory if it does not exist
+if [[ ! -d $terraform_log_dir ]] ; then mkdir $terraform_log_dir; fi
+
+case $terraform_cmd in
+  apply)
+    terraform apply \
+    -var aws_target_env=$terraform_env \
+    -no-color \
+    -refresh=true \
+    -parallelism=$terraform_parallelism \
+    $terraform_config
+    ;;
+
+  destroy)
+    if [[ $terraform_env = "prod" ]] ; then
+      echo "YOU ARE ABOUT TO DESTROY A PRODUCTION ENVIRONMENT!"
+      terraform destroy \
+      -var aws_target_env=$terraform_env \
+      -no-color \
+      -refresh=true \
+      -parallelism=$terraform_parallelism \
+      $terraform_config
+    else
+      terraform destroy \
+      -var aws_target_env=$terraform_env \
+      -no-color \
+      -refresh=true \
+      -parallelism=$terraform_parallelism \
+      -force \
+      $terraform_config
+    fi
+    ;;
+
+  plan)
+    terraform plan \
+    -var aws_target_env=$terraform_env \
+    -no-color \
+    -refresh=true \
+    $terraform_config
+    ;;
+
+  taint)
+      if [[ $terraform_module && -z $terraform_resource ]] ; then
+        terraform taint \
+        -no-color \
+        $terraform_module
+      elif [[ $terraform_module && $terraform_resource ]] ; then
+        terraform taint \
+        -no-color \
+        -module=$terraform_module \
+        $terraform_resource
+      else
+        help
+      fi
+      ;;
+
+  output)
+    if [[ -z $terraform_module ]] ; then
+      terraform output \
+      -no-color
+    elif [[ $terraform_module ]] ; then
+      terraform output \
+      -no-color \
+      -module=$terraform_module
+    else
+      help
+    fi
+    ;;
+
+    show)
+      terraform show
+      ;;
+esac
+
 exit $?
