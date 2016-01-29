@@ -5,8 +5,10 @@
 #This repository's index has been updated to ignore changes to this file:
 #git update-index --assume-unchanged credentials.sh
 #DO NOT PUSH API KEYS TO GITHUB!!!!
-export ARTIFACTORY_USERNAME="terraform"
-export ARTIFACTORY_PASSWORD="n@il822z6t8wu5Jn"
+export ARTIFACTORY_USERNAME=""
+export ARTIFACTORY_PASSWORD=""
+export artifactory_url=""
+export artifactory_repo=""
 case $1 in
   dev)
     export TF_VAR_aws_access_key=""
@@ -21,13 +23,16 @@ case $1 in
     export TF_VAR_aws_secret_key=""
     ;;
   prod)
-    export TF_VAR_aws_access_key="AKIAJQDETGPLR624N5YA"
-    export TF_VAR_aws_secret_key="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"
+    export TF_VAR_aws_access_key=""
+    export TF_VAR_aws_secret_key=""
     ;;
 esac
-if [[ -z $ARTIFACTORY_USERNAME || -z $ARTIFACTORY_PASSWORD ]] ;
+if [[ -z $ARTIFACTORY_USERNAME \
+    || -z $ARTIFACTORY_PASSWORD \
+    || -z $artifactory_url \
+    || -z $artifactory_repo ]] ;
 then
-  echo -e "Please set Artifactory credentials in credentials.sh"
+  echo -e "Please set Artifactory credentials and/or repository details in credentials.sh"
   exit 1
 elif [[ -z $TF_VAR_aws_access_key || -z $TF_VAR_aws_secret_key ]] ;
 then
