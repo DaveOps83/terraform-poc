@@ -56,13 +56,13 @@ module "bastion_instance" {
 }
 
 module "tropics_security_group" {
-    source = "modules/http_security_group"
-    http_security_group_vpc_id = "${module.vpc.id}"
-    http_security_group_bastion_private_ip = "${module.bastion_instance.private_ip}"
-    http_security_group_name = "${var.stack_name}-tropics"
-    http_security_group_description = "${var.stack_description}"
-    http_security_group_tag_project = "${var.stack_name}"
-    http_security_group_tag_environment = "${var.aws_target_env}"
+    source = "modules/tropics_security_group"
+    tropics_security_group_vpc_id = "${module.vpc.id}"
+    tropics_security_group_bastion_private_ip = "${module.bastion_instance.private_ip}"
+    tropics_security_group_name = "${var.stack_name}-tropics"
+    tropics_security_group_description = "${var.stack_description}"
+    tropics_security_group_tag_project = "${var.stack_name}"
+    tropics_security_group_tag_environment = "${var.aws_target_env}"
 }
 
 module "tropics_user_data" {
@@ -107,13 +107,13 @@ module "secondary_tropics_instance" {
 }
 
 module "das_security_group" {
-    source = "modules/http_security_group"
-    http_security_group_vpc_id = "${module.vpc.id}"
-    http_security_group_bastion_private_ip = "${module.bastion_instance.private_ip}"
-    http_security_group_name = "${var.stack_name}-das"
-    http_security_group_description = "${var.stack_description}"
-    http_security_group_tag_project = "${var.stack_name}"
-    http_security_group_tag_environment = "${var.aws_target_env}"
+    source = "modules/das_security_group"
+    das_security_group_vpc_id = "${module.vpc.id}"
+    das_security_group_bastion_private_ip = "${module.bastion_instance.private_ip}"
+    das_security_group_name = "${var.stack_name}-das"
+    das_security_group_description = "${var.stack_description}"
+    das_security_group_tag_project = "${var.stack_name}"
+    das_security_group_tag_environment = "${var.aws_target_env}"
 }
 
 module "das_user_data" {
@@ -279,8 +279,7 @@ module "tour_api_elb" {
     https_elb_connection_draining_timeout = "30"
     https_elb_security_groups = "${module.tour_api_elb_security_group.id}"
     https_elb_ssl_cert_arn = "${lookup(var.ssl_cert, var.aws_target_env)}"
-    https_elb_instances = "${module.primary_tour_api_instance.instance_id}"
-    #https_elb_instances = "${module.primary_tour_api_instance.instance_id},${module.secondary_tour_api_instance.instance_id}"
+    https_elb_instances = "${module.primary_tour_api_instance.id},${module.secondary_tour_api_instance.id}"
     https_elb_instance_port = "80"
     https_elb_instance_protocol = "HTTP"
     https_elb_healthy_threshold = "3"

@@ -18,15 +18,6 @@ resource "aws_security_group_rule" "ssh_from_bastion" {
     security_group_id = "${aws_security_group.tour_api.id}"
 }
 
-resource "aws_security_group_rule" "http_from_bastion" {
-    type = "ingress"
-    from_port = 80
-    to_port = 80
-    protocol = "tcp"
-    source_security_group_id  = "${var.tour_api_security_group_bastion_security_group}"
-    security_group_id = "${aws_security_group.tour_api.id}"
-}
-
 resource "aws_security_group_rule" "http_from_elb" {
     type = "ingress"
     from_port = 80

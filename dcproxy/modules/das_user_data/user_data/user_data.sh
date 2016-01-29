@@ -24,3 +24,4 @@ http {
 }
 NGINX_CONF
 service nginx start
+yum install -y keepalived

@@ -1,8 +1,7 @@
 resource "aws_elb" "https_elb" {
   name = "${var.https_elb_tag_name}"
   subnets = ["${split(",", var.https_elb_subnets)}"]
-  instances = ["${var.https_elb_instances}"]
-  #instances = ["${split(",", var.https_elb_instances)}"]
+  instances = ["${split(",", var.https_elb_instances)}"]
   cross_zone_load_balancing = "${var.https_elb_cross_zone}"
   idle_timeout = "${var.https_elb_idle_timeout}"
   connection_draining = "${var.https_elb_connection_draining}"

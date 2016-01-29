@@ -30,7 +30,7 @@ terraform_resource=${5:-""}
 #Set up the environment
 terraform_env_file=".terraform/environment"
 terraform_previous_env=$([ -f $terraform_env_file ] && echo "$(<$terraform_env_file)" || echo "unknown")
-terraform_parallelism=2
+terraform_parallelism=1
 terraform_log_dir="$terraform_config/logs"
 terraform_log_level="DEBUG"
 export TF_LOG=$terraform_log_level
