@@ -1,11 +1,11 @@
 resource "aws_security_group" "group" {
-    name = "${var.http_security_group_name}"
-    description = "${var.http_security_group_description}"
-    vpc_id = "${var.http_security_group_vpc_id}"
+    name = "${var.tropics_security_group_name}"
+    description = "${var.tropics_security_group_description}"
+    vpc_id = "${var.tropics_security_group_vpc_id}"
     tags {
-        Name = "${var.http_security_group_name}"
-        Project = "${var.http_security_group_name}"
-        Environment = "${var.http_security_group_tag_environment}"
+        Name = "${var.tropics_security_group_name}"
+        Project = "${var.tropics_security_group_name}"
+        Environment = "${var.tropics_security_group_tag_environment}"
     }
 }
 
@@ -14,7 +14,7 @@ resource "aws_security_group_rule" "ssh_from_bastion" {
     from_port = 22
     to_port = 22
     protocol = "tcp"
-    cidr_blocks = ["${var.http_security_group_bastion_private_ip}/32"]
+    source_security_group_id  = "${var.tropics_security_group_bastion_security_group}"
     security_group_id = "${aws_security_group.group.id}"
 }
 

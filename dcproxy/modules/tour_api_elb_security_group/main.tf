@@ -1,4 +1,4 @@
-resource "aws_security_group" "tour_api_elb" {
+resource "aws_security_group" "group" {
     name = "${var.tour_api_elb_security_group_name}"
     description = "${var.tour_api_elb_security_group_description}"
     vpc_id = "${var.tour_api_elb_security_group_vpc_id}"
@@ -15,7 +15,7 @@ resource "aws_security_group_rule" "https_from_all" {
     to_port = 443
     protocol = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
-    security_group_id = "${aws_security_group.tour_api_elb.id}"
+    security_group_id = "${aws_security_group.group.id}"
 }
 
 resource "aws_security_group_rule" "http_to_tour_api_security_group" {
@@ -24,5 +24,5 @@ resource "aws_security_group_rule" "http_to_tour_api_security_group" {
     to_port = 80
     protocol = "tcp"
     source_security_group_id = "${var.tour_api_elb_security_group_tour_api_security_group}"
-    security_group_id = "${aws_security_group.tour_api_elb.id}"
+    security_group_id = "${aws_security_group.group.id}"
 }

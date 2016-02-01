@@ -21,12 +21,25 @@ module "vpc" {
     vpc_environment_tag = "${var.aws_target_env}"
 }
 
+module "bastion_log_group" {
+    source = "modules/log_group"
+    log_group_name = "${var.stack_name}-bastion"
+}
+
+module "bastion_instance_profile" {
+    source = "modules/instance_profile"
+    instance_profile_name = "${var.stack_name}-bastion"
+    instance_profile_roles = "${module.bastion_log_group.role}"
+}
+
 module "bastion_security_group" {
     source = "modules/bastion_security_group"
     bastion_security_group_vpc_id = "${module.vpc.id}"
     bastion_security_group_ssh_source_range = "${var.dc_egress_range}"
-    bastion_security_group_primary_private_cidr_block = "${module.vpc.primary_private_cidr_block}"
-    bastion_security_group_secondary_private_cidr_block = "${module.vpc.secondary_private_cidr_block}"
+    bastion_security_group_tropics_security_group = "${module.tropics_security_group.id}"
+    bastion_security_group_das_security_group = "${module.das_security_group.id}"
+    bastion_security_group_ldaps_security_group = "${module.ldaps_security_group.id}"
+    bastion_security_group_tour_api_security_group = "${module.tour_api_security_group.id}"
     bastion_security_group_name = "${var.stack_name}-bastion"
     bastion_security_group_description = "${var.stack_description}"
     bastion_security_group_tag_project = "${var.stack_name}"
@@ -45,20 +58,31 @@ module "bastion_instance" {
     instance_subnet = "${module.vpc.primary_public_subnet}"
     instance_associate_public_ip_address = "true"
     instance_security_group = "${module.bastion_security_group.id}"
+    instance_profile = "${module.bastion_instance_profile.name}"
     instance_monitoring = "false"
     instance_disable_api_termination = "false"
     instance_user_data = "${module.bastion_user_data.user_data}"
-    #instance_nat_gateway = "${module.vpc.primary_nat_gateway}"
     instance_tag_name = "${var.stack_name}-bastion"
     instance_tag_description = "${var.stack_description}"
     instance_tag_project = "${var.stack_name}"
     instance_tag_environment = "${var.aws_target_env}"
 }
 
+module "tropics_log_group" {
+    source = "modules/log_group"
+    log_group_name = "${var.stack_name}-tropics"
+}
+
+module "tropics_instance_profile" {
+    source = "modules/instance_profile"
+    instance_profile_name = "${var.stack_name}-tropics"
+    instance_profile_roles = "${module.tropics_log_group.role}"
+}
+
 module "tropics_security_group" {
     source = "modules/tropics_security_group"
     tropics_security_group_vpc_id = "${module.vpc.id}"
-    tropics_security_group_bastion_private_ip = "${module.bastion_instance.private_ip}"
+    tropics_security_group_bastion_security_group = "${module.bastion_security_group.id}"
     tropics_security_group_name = "${var.stack_name}-tropics"
     tropics_security_group_description = "${var.stack_description}"
     tropics_security_group_tag_project = "${var.stack_name}"
@@ -78,10 +102,10 @@ module "primary_tropics_instance" {
     instance_subnet = "${module.vpc.primary_private_subnet}"
     instance_associate_public_ip_address = "false"
     instance_security_group = "${module.tropics_security_group.id}"
+    instance_profile = "${module.tropics_instance_profile.name}"
     instance_monitoring = "true"
     instance_disable_api_termination = "false"
     instance_user_data = "${module.tropics_user_data.user_data}"
-    #instance_nat_gateway = "${module.vpc.primary_nat_gateway}"
     instance_tag_name = "${var.stack_name}-primary-tropics"
     instance_tag_description = "${var.stack_description}"
     instance_tag_project = "${var.stack_name}"
@@ -96,29 +120,42 @@ module "secondary_tropics_instance" {
     instance_subnet = "${module.vpc.secondary_private_subnet}"
     instance_associate_public_ip_address = "false"
     instance_security_group = "${module.tropics_security_group.id}"
+    instance_profile = "${module.tropics_instance_profile.name}"
     instance_monitoring = "true"
     instance_disable_api_termination = "false"
     instance_user_data = "${module.tropics_user_data.user_data}"
-    #instance_nat_gateway = "${module.vpc.secondary_nat_gateway}"
     instance_tag_name = "${var.stack_name}-secondary-tropics"
     instance_tag_description = "${var.stack_description}"
     instance_tag_project = "${var.stack_name}"
     instance_tag_environment = "${var.aws_target_env}"
 }
 
+module "das_log_group" {
+    source = "modules/log_group"
+    log_group_name = "${var.stack_name}-das"
+}
+
+module "das_instance_profile" {
+    source = "modules/instance_profile"
+    instance_profile_name = "${var.stack_name}-das"
+    instance_profile_roles = "${module.das_log_group.role}"
+}
+
 module "das_security_group" {
     source = "modules/das_security_group"
     das_security_group_vpc_id = "${module.vpc.id}"
-    das_security_group_bastion_private_ip = "${module.bastion_instance.private_ip}"
+    das_security_group_bastion_security_group = "${module.bastion_security_group.id}"
     das_security_group_name = "${var.stack_name}-das"
     das_security_group_description = "${var.stack_description}"
     das_security_group_tag_project = "${var.stack_name}"
     das_security_group_tag_environment = "${var.aws_target_env}"
 }
 
-module "das_user_data" {
+module "primary_das_instance_user_data" {
     source = "modules/das_user_data"
     das_dc_dns = "${module.dns.dc_ingress_dns}"
+    das_log_group_name = "${module.das_log_group.name}"
+    das_log_stream_name = "primary-instance"
 }
 
 module "primary_das_instance" {
@@ -129,14 +166,21 @@ module "primary_das_instance" {
     instance_subnet = "${module.vpc.primary_private_subnet}"
     instance_associate_public_ip_address = "false"
     instance_security_group = "${module.das_security_group.id}"
+    instance_profile = "${module.das_instance_profile.name}"
     instance_monitoring = "true"
     instance_disable_api_termination = "false"
-    instance_user_data = "${module.das_user_data.user_data}"
-    #instance_nat_gateway = "${module.vpc.primary_nat_gateway}"
+    instance_user_data = "${module.primary_das_instance_user_data.user_data}"
     instance_tag_name = "${var.stack_name}-primary-das"
     instance_tag_description = "${var.stack_description}"
     instance_tag_project = "${var.stack_name}"
     instance_tag_environment = "${var.aws_target_env}"
+}
+
+module "secondary_das_instance_user_data" {
+    source = "modules/das_user_data"
+    das_dc_dns = "${module.dns.dc_ingress_dns}"
+    das_log_group_name = "${module.das_log_group.name}"
+    das_log_stream_name = "secondary-instance"
 }
 
 module "secondary_das_instance" {
@@ -147,14 +191,25 @@ module "secondary_das_instance" {
     instance_subnet = "${module.vpc.secondary_private_subnet}"
     instance_associate_public_ip_address = "false"
     instance_security_group = "${module.das_security_group.id}"
+    instance_profile = "${module.das_instance_profile.name}"
     instance_monitoring = "true"
     instance_disable_api_termination = "false"
-    instance_user_data = "${module.das_user_data.user_data}"
-    #instance_nat_gateway = "${module.vpc.secondary_nat_gateway}"
+    instance_user_data = "${module.secondary_das_instance_user_data.user_data}"
     instance_tag_name = "${var.stack_name}-secondary-das"
     instance_tag_description = "${var.stack_description}"
     instance_tag_project = "${var.stack_name}"
     instance_tag_environment = "${var.aws_target_env}"
+}
+
+module "ldaps_log_group" {
+    source = "modules/log_group"
+    log_group_name = "${var.stack_name}-ldaps"
+}
+
+module "ldaps_instance_profile" {
+    source = "modules/instance_profile"
+    instance_profile_name = "${var.stack_name}-ldaps"
+    instance_profile_roles = "${module.ldaps_log_group.role}"
 }
 
 module "ldaps_security_group" {
@@ -180,10 +235,10 @@ module "primary_ldaps_instance" {
     instance_subnet = "${module.vpc.primary_private_subnet}"
     instance_associate_public_ip_address = "false"
     instance_security_group = "${module.ldaps_security_group.id}"
+    instance_profile = "${module.ldaps_instance_profile.name}"
     instance_monitoring = "true"
     instance_disable_api_termination = "false"
     instance_user_data = "${module.ldaps_user_data.user_data}"
-    #instance_nat_gateway = "${module.vpc.primary_nat_gateway}"
     instance_tag_name = "${var.stack_name}-primary-ldaps"
     instance_tag_description = "${var.stack_description}"
     instance_tag_project = "${var.stack_name}"
@@ -198,14 +253,25 @@ module "secondary_ldaps_instance" {
     instance_subnet = "${module.vpc.secondary_private_subnet}"
     instance_associate_public_ip_address = "false"
     instance_security_group = "${module.ldaps_security_group.id}"
+    instance_profile = "${module.ldaps_instance_profile.name}"
     instance_monitoring = "true"
     instance_disable_api_termination = "false"
     instance_user_data = "${module.ldaps_user_data.user_data}"
-    #instance_nat_gateway = "${module.vpc.secondary_nat_gateway}"
     instance_tag_name = "${var.stack_name}-secondary-ldaps"
     instance_tag_description = "${var.stack_description}"
     instance_tag_project = "${var.stack_name}"
     instance_tag_environment = "${var.aws_target_env}"
+}
+
+module "tour_api_log_group" {
+    source = "modules/log_group"
+    log_group_name = "${var.stack_name}-tour-api"
+}
+
+module "tour_api_instance_profile" {
+    source = "modules/instance_profile"
+    instance_profile_name = "${var.stack_name}-tour-api"
+    instance_profile_roles = "${module.tour_api_log_group.role}"
 }
 
 module "tour_api_security_group" {
@@ -232,10 +298,10 @@ module "primary_tour_api_instance" {
     instance_subnet = "${module.vpc.primary_private_subnet}"
     instance_associate_public_ip_address = "false"
     instance_security_group = "${module.tour_api_security_group.id}"
+    instance_profile = "${module.tour_api_instance_profile.name}"
     instance_monitoring = "true"
     instance_disable_api_termination = "false"
     instance_user_data = "${module.tour_api_user_data.user_data}"
-    #instance_nat_gateway = "${module.vpc.primary_nat_gateway}"
     instance_tag_name = "${var.stack_name}-primary-tour-api"
     instance_tag_description = "${var.stack_description}"
     instance_tag_project = "${var.stack_name}"
@@ -250,10 +316,10 @@ module "secondary_tour_api_instance" {
     instance_subnet = "${module.vpc.secondary_private_subnet}"
     instance_associate_public_ip_address = "false"
     instance_security_group = "${module.tour_api_security_group.id}"
+    instance_profile = "${module.tour_api_instance_profile.name}"
     instance_monitoring = "true"
     instance_disable_api_termination = "false"
     instance_user_data = "${module.tour_api_user_data.user_data}"
-    #instance_nat_gateway = "${module.vpc.secondary_nat_gateway}"
     instance_tag_name = "${var.stack_name}-secondary-tour-api"
     instance_tag_description = "${var.stack_description}"
     instance_tag_project = "${var.stack_name}"

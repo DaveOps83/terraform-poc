@@ -1,7 +1,9 @@
 variable "bastion_security_group_vpc_id" {}
 variable "bastion_security_group_ssh_source_range" {}
-variable "bastion_security_group_primary_private_cidr_block" {}
-variable "bastion_security_group_secondary_private_cidr_block" {}
+variable "bastion_security_group_tropics_security_group" {}
+variable "bastion_security_group_das_security_group" {}
+variable "bastion_security_group_ldaps_security_group" {}
+variable "bastion_security_group_tour_api_security_group" {}
 variable "bastion_security_group_name" {}
 variable "bastion_security_group_description" {}
 variable "bastion_security_group_tag_project" {}

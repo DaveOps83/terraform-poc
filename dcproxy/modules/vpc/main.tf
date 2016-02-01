@@ -164,56 +164,36 @@ resource "aws_nat_gateway" "secondary_nat_gateway" {
     depends_on = ["aws_internet_gateway.internet_gateway"]
 }
 
-resource "aws_iam_role" "flow_log_role" {
-    name = "${var.vpc_name_tag}-flow-logs"
-    assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "",
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "vpc-flow-logs.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-EOF
+resource "template_file" "vpc_flow_logs_trust_policy_document" {
+  template = "${file("${path.module}/trust_policy.json")}"
 }
 
-resource "aws_iam_role_policy" "flow_log_role_policy" {
-    name = "${var.vpc_name_tag}-flow-logs"
-    role = "${aws_iam_role.flow_log_role.id}"
-    policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": [
-        "logs:CreateLogGroup",
-        "logs:CreateLogStream",
-        "logs:PutLogEvents",
-        "logs:DescribeLogGroups",
-        "logs:DescribeLogStreams"
-      ],
-      "Effect": "Allow",
-      "Resource": "*"
-    }
-  ]
-}
-EOF
+resource "aws_iam_role" "vpc_flow_logs" {
+    name = "${var.vpc_name_tag}-vpc-flow-logs"
+    assume_role_policy = "${template_file.vpc_flow_logs_trust_policy_document.rendered}"
 }
 
-resource "aws_cloudwatch_log_group" "cloudwatch_log_group" {
-  name = "${var.vpc_name_tag}-flow-logs"
+resource "template_file" "vpc_flow_logs_role_policy_document" {
+  template = "${file("${path.module}/role_policy.json")}"
+  vars {
+    arn_log_group_name = "${aws_cloudwatch_log_group.vpc_flow_logs_cloudwatch_log_group.name}"
+  }
+}
+
+resource "aws_iam_role_policy" "vpc_flow_logs_role_policy" {
+    name = "${var.vpc_name_tag}-vpc-flow-logs"
+    role = "${aws_iam_role.vpc_flow_logs.id}"
+    policy = "${template_file.vpc_flow_logs_role_policy_document.rendered}"
+}
+
+resource "aws_cloudwatch_log_group" "vpc_flow_logs_cloudwatch_log_group" {
+  name = "${var.vpc_name_tag}-vpc-flow"
   retention_in_days = "30"
 }
 
-resource "aws_flow_log" "flow_log" {
-  log_group_name = "${aws_cloudwatch_log_group.cloudwatch_log_group.name}"
-  iam_role_arn = "${aws_iam_role.flow_log_role.arn}"
+resource "aws_flow_log" "vpc_flow_log" {
+  log_group_name = "${aws_cloudwatch_log_group.vpc_flow_logs_cloudwatch_log_group.name}"
+  iam_role_arn = "${aws_iam_role.vpc_flow_logs.arn}"
   vpc_id = "${aws_vpc.vpc.id}"
   traffic_type = "REJECT"
 }

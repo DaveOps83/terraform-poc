@@ -1,1 +1,1 @@
-output "id" { value = "${aws_security_group.tour_api.id}" }
+output "id" { value = "${aws_security_group.group.id}" }

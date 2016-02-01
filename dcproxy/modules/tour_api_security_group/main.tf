@@ -1,4 +1,4 @@
-resource "aws_security_group" "tour_api" {
+resource "aws_security_group" "group" {
     name = "${var.tour_api_security_group_name}"
     description = "${var.tour_api_security_group_description}"
     vpc_id = "${var.tour_api_security_group_vpc_id}"
@@ -15,7 +15,7 @@ resource "aws_security_group_rule" "ssh_from_bastion" {
     to_port = 22
     protocol = "tcp"
     source_security_group_id  = "${var.tour_api_security_group_bastion_security_group}"
-    security_group_id = "${aws_security_group.tour_api.id}"
+    security_group_id = "${aws_security_group.group.id}"
 }
 
 resource "aws_security_group_rule" "http_from_elb" {
@@ -24,7 +24,7 @@ resource "aws_security_group_rule" "http_from_elb" {
     to_port = 80
     protocol = "tcp"
     source_security_group_id  = "${var.tour_api_security_group_elb_security_group}"
-    security_group_id = "${aws_security_group.tour_api.id}"
+    security_group_id = "${aws_security_group.group.id}"
 }
 
 resource "aws_security_group_rule" "http_to_all" {
@@ -33,7 +33,7 @@ resource "aws_security_group_rule" "http_to_all" {
     to_port = 80
     protocol = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
-    security_group_id = "${aws_security_group.tour_api.id}"
+    security_group_id = "${aws_security_group.group.id}"
 }
 
 resource "aws_security_group_rule" "https_to_all" {
@@ -42,5 +42,5 @@ resource "aws_security_group_rule" "https_to_all" {
     to_port = 443
     protocol = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
-    security_group_id = "${aws_security_group.tour_api.id}"
+    security_group_id = "${aws_security_group.group.id}"
 }

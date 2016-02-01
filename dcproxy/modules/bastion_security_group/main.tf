@@ -1,4 +1,4 @@
-resource "aws_security_group" "bastion" {
+resource "aws_security_group" "group" {
     name = "${var.bastion_security_group_name}"
     description = "${var.bastion_security_group_description}"
     vpc_id = "${var.bastion_security_group_vpc_id}"
@@ -15,16 +15,43 @@ resource "aws_security_group_rule" "ssh_from_data_centre" {
     to_port = 22
     protocol = "tcp"
     cidr_blocks = ["${var.bastion_security_group_ssh_source_range}"]
-    security_group_id = "${aws_security_group.bastion.id}"
+    security_group_id = "${aws_security_group.group.id}"
 }
 
-resource "aws_security_group_rule" "ssh_to_private_subnets" {
+resource "aws_security_group_rule" "ssh_to_tropics_nodes" {
     type = "egress"
     from_port = 22
     to_port = 22
     protocol = "tcp"
-    cidr_blocks = ["${var.bastion_security_group_primary_private_cidr_block}", "${var.bastion_security_group_secondary_private_cidr_block}"]
-    security_group_id = "${aws_security_group.bastion.id}"
+    source_security_group_id  = "${var.bastion_security_group_tropics_security_group}"
+    security_group_id = "${aws_security_group.group.id}"
+}
+
+resource "aws_security_group_rule" "ssh_to_das_nodes" {
+    type = "egress"
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    source_security_group_id  = "${var.bastion_security_group_das_security_group}"
+    security_group_id = "${aws_security_group.group.id}"
+}
+
+resource "aws_security_group_rule" "ssh_to_ldaps_nodes" {
+    type = "egress"
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    source_security_group_id  = "${var.bastion_security_group_ldaps_security_group}"
+    security_group_id = "${aws_security_group.group.id}"
+}
+
+resource "aws_security_group_rule" "ssh_to_tour_api_nodes" {
+    type = "egress"
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    source_security_group_id  = "${var.bastion_security_group_tour_api_security_group}"
+    security_group_id = "${aws_security_group.group.id}"
 }
 
 resource "aws_security_group_rule" "http_to_all" {
@@ -33,7 +60,7 @@ resource "aws_security_group_rule" "http_to_all" {
     to_port = 80
     protocol = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
-    security_group_id = "${aws_security_group.bastion.id}"
+    security_group_id = "${aws_security_group.group.id}"
 }
 
 resource "aws_security_group_rule" "https_to_all" {
@@ -42,5 +69,5 @@ resource "aws_security_group_rule" "https_to_all" {
     to_port = 443
     protocol = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
-    security_group_id = "${aws_security_group.bastion.id}"
+    security_group_id = "${aws_security_group.group.id}"
 }
