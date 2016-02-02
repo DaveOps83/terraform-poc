@@ -36,6 +36,7 @@ resource "aws_security_group_rule" "ssh_to_das_nodes" {
     security_group_id = "${aws_security_group.group.id}"
 }
 
+/*
 resource "aws_security_group_rule" "ssh_to_ldaps_nodes" {
     type = "egress"
     from_port = 22
@@ -44,6 +45,7 @@ resource "aws_security_group_rule" "ssh_to_ldaps_nodes" {
     source_security_group_id  = "${var.bastion_security_group_ldaps_security_group}"
     security_group_id = "${aws_security_group.group.id}"
 }
+*/
 
 resource "aws_security_group_rule" "ssh_to_tour_api_nodes" {
     type = "egress"

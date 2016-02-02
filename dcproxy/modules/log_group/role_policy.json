@@ -4,13 +4,14 @@
         {
             "Sid": "Stmt1454339165518",
             "Action": [
+                "logs:CreateLogGroup",
                 "logs:CreateLogStream",
                 "logs:DeleteLogStream",
                 "logs:DescribeLogGroups",
                 "logs:PutLogEvents"
             ],
             "Effect": "Allow",
-            "Resource": "arn:aws:logs:*:*:log-group:${arn_log_group_name}"
+            "Resource": "arn:aws:logs:*:*:log-group:${arn_log_group_name}:log-stream:*"
         }
     ]
 }

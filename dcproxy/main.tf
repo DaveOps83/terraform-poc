@@ -38,7 +38,7 @@ module "bastion_security_group" {
     bastion_security_group_ssh_source_range = "${var.dc_egress_range}"
     bastion_security_group_tropics_security_group = "${module.tropics_security_group.id}"
     bastion_security_group_das_security_group = "${module.das_security_group.id}"
-    bastion_security_group_ldaps_security_group = "${module.ldaps_security_group.id}"
+    #bastion_security_group_ldaps_security_group = "${module.ldaps_security_group.id}"
     bastion_security_group_tour_api_security_group = "${module.tour_api_security_group.id}"
     bastion_security_group_name = "${var.stack_name}-bastion"
     bastion_security_group_description = "${var.stack_description}"
@@ -48,6 +48,8 @@ module "bastion_security_group" {
 
 module "bastion_user_data" {
     source = "modules/bastion_user_data"
+    bastion_log_group_name = "${module.bastion_log_group.name}"
+    bastion_log_stream_name = "bastion-instance"
 }
 
 module "bastion_instance" {
@@ -89,9 +91,11 @@ module "tropics_security_group" {
     tropics_security_group_tag_environment = "${var.aws_target_env}"
 }
 
-module "tropics_user_data" {
+module "primary_tropics_instance_user_data" {
     source = "modules/tropics_user_data"
     tropics_dc_dns = "${module.dns.dc_ingress_dns}"
+    tropics_log_group_name = "${module.tropics_log_group.name}"
+    tropics_log_stream_name = "primary-instance"
 }
 
 module "primary_tropics_instance" {
@@ -105,11 +109,18 @@ module "primary_tropics_instance" {
     instance_profile = "${module.tropics_instance_profile.name}"
     instance_monitoring = "true"
     instance_disable_api_termination = "false"
-    instance_user_data = "${module.tropics_user_data.user_data}"
+    instance_user_data = "${module.primary_tropics_instance_user_data.user_data}"
     instance_tag_name = "${var.stack_name}-primary-tropics"
     instance_tag_description = "${var.stack_description}"
     instance_tag_project = "${var.stack_name}"
     instance_tag_environment = "${var.aws_target_env}"
+}
+
+module "secondary_tropics_instance_user_data" {
+    source = "modules/tropics_user_data"
+    tropics_dc_dns = "${module.dns.dc_ingress_dns}"
+    tropics_log_group_name = "${module.tropics_log_group.name}"
+    tropics_log_stream_name = "secondary-instance"
 }
 
 module "secondary_tropics_instance" {
@@ -123,7 +134,7 @@ module "secondary_tropics_instance" {
     instance_profile = "${module.tropics_instance_profile.name}"
     instance_monitoring = "true"
     instance_disable_api_termination = "false"
-    instance_user_data = "${module.tropics_user_data.user_data}"
+    instance_user_data = "${module.secondary_tropics_instance_user_data.user_data}"
     instance_tag_name = "${var.stack_name}-secondary-tropics"
     instance_tag_description = "${var.stack_description}"
     instance_tag_project = "${var.stack_name}"
@@ -201,6 +212,7 @@ module "secondary_das_instance" {
     instance_tag_environment = "${var.aws_target_env}"
 }
 
+/*
 module "ldaps_log_group" {
     source = "modules/log_group"
     log_group_name = "${var.stack_name}-ldaps"
@@ -222,9 +234,11 @@ module "ldaps_security_group" {
     ldaps_security_group_tag_environment = "${var.aws_target_env}"
 }
 
-module "ldaps_user_data" {
+module "primary_ldaps_instance_user_data" {
     source = "modules/ldaps_user_data"
     ldaps_dc_dns = "${module.dns.dc_ingress_dns}"
+    ldaps_log_group_name = "${module.ldaps_log_group.name}"
+    ldaps_log_stream_name = "primary-instance"
 }
 
 module "primary_ldaps_instance" {
@@ -238,11 +252,18 @@ module "primary_ldaps_instance" {
     instance_profile = "${module.ldaps_instance_profile.name}"
     instance_monitoring = "true"
     instance_disable_api_termination = "false"
-    instance_user_data = "${module.ldaps_user_data.user_data}"
+    instance_user_data = "${module.primary_ldaps_instance_user_data.user_data}"
     instance_tag_name = "${var.stack_name}-primary-ldaps"
     instance_tag_description = "${var.stack_description}"
     instance_tag_project = "${var.stack_name}"
     instance_tag_environment = "${var.aws_target_env}"
+}
+
+module "secondary_ldaps_instance_user_data" {
+    source = "modules/ldaps_user_data"
+    ldaps_dc_dns = "${module.dns.dc_ingress_dns}"
+    ldaps_log_group_name = "${module.ldaps_log_group.name}"
+    ldaps_log_stream_name = "secondary-instance"
 }
 
 module "secondary_ldaps_instance" {
@@ -256,12 +277,13 @@ module "secondary_ldaps_instance" {
     instance_profile = "${module.ldaps_instance_profile.name}"
     instance_monitoring = "true"
     instance_disable_api_termination = "false"
-    instance_user_data = "${module.ldaps_user_data.user_data}"
+    instance_user_data = "${module.secondary_ldaps_instance_user_data.user_data}"
     instance_tag_name = "${var.stack_name}-secondary-ldaps"
     instance_tag_description = "${var.stack_description}"
     instance_tag_project = "${var.stack_name}"
     instance_tag_environment = "${var.aws_target_env}"
 }
+*/
 
 module "tour_api_log_group" {
     source = "modules/log_group"
@@ -285,9 +307,11 @@ module "tour_api_security_group" {
     tour_api_security_group_tag_environment = "${var.aws_target_env}"
 }
 
-module "tour_api_user_data" {
+module "primary_tour_api_instance_user_data" {
     source = "modules/tour_api_user_data"
     tour_api_dc_dns = "${module.dns.dc_ingress_dns}"
+    tour_api_log_group_name = "${module.tour_api_log_group.name}"
+    tour_api_log_stream_name = "primary-instance"
 }
 
 module "primary_tour_api_instance" {
@@ -301,11 +325,18 @@ module "primary_tour_api_instance" {
     instance_profile = "${module.tour_api_instance_profile.name}"
     instance_monitoring = "true"
     instance_disable_api_termination = "false"
-    instance_user_data = "${module.tour_api_user_data.user_data}"
+    instance_user_data = "${module.primary_tour_api_instance_user_data.user_data}"
     instance_tag_name = "${var.stack_name}-primary-tour-api"
     instance_tag_description = "${var.stack_description}"
     instance_tag_project = "${var.stack_name}"
     instance_tag_environment = "${var.aws_target_env}"
+}
+
+module "secondary_tour_api_instance_user_data" {
+    source = "modules/tour_api_user_data"
+    tour_api_dc_dns = "${module.dns.dc_ingress_dns}"
+    tour_api_log_group_name = "${module.tour_api_log_group.name}"
+    tour_api_log_stream_name = "secondary-instance"
 }
 
 module "secondary_tour_api_instance" {
@@ -319,7 +350,7 @@ module "secondary_tour_api_instance" {
     instance_profile = "${module.tour_api_instance_profile.name}"
     instance_monitoring = "true"
     instance_disable_api_termination = "false"
-    instance_user_data = "${module.tour_api_user_data.user_data}"
+    instance_user_data = "${module.secondary_tour_api_instance_user_data.user_data}"
     instance_tag_name = "${var.stack_name}-secondary-tour-api"
     instance_tag_description = "${var.stack_description}"
     instance_tag_project = "${var.stack_name}"
@@ -370,8 +401,8 @@ module "dns" {
     dns_primary_tropics_instance_private_ip = "${module.primary_tropics_instance.private_ip}"
     dns_das_dns = "das.${var.aws_target_env}.travcorpservices.com"
     dns_primary_das_instance_private_ip = "${module.primary_das_instance.private_ip}"
-    dns_ldaps_dns = "ldaps.${var.aws_target_env}.travcorpservices.com"
-    dns_primary_ldaps_instance_private_ip = "${module.primary_ldaps_instance.private_ip}"
+    #dns_ldaps_dns = "ldaps.${var.aws_target_env}.travcorpservices.com"
+    #dns_primary_ldaps_instance_private_ip = "${module.primary_ldaps_instance.private_ip}"
     dns_tour_api_dns = "tours.${var.aws_target_env}.travcorpservices.com"
     dns_tour_api_elb_dns_name = "${module.tour_api_elb.dns_name}"
 }

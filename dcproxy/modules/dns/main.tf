@@ -30,6 +30,7 @@ resource "aws_route53_record" "das" {
    records = ["${var.dns_primary_das_instance_private_ip}"]
 }
 
+/*
 resource "aws_route53_record" "ldaps" {
    zone_id = "${var.dns_hosted_zone_id}"
    name = "${var.dns_ldaps_dns}"
@@ -37,6 +38,7 @@ resource "aws_route53_record" "ldaps" {
    ttl = "60"
    records = ["${var.dns_primary_ldaps_instance_private_ip}"]
 }
+*/
 
 resource "aws_route53_record" "tour_api" {
    zone_id = "${var.dns_hosted_zone_id}"

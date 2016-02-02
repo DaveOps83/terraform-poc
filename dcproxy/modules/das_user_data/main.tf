@@ -7,11 +7,19 @@ resource "template_file" "user_data" {
   }
 }
 
+resource "template_file" "bootstrap_tests" {
+  template = "${file("${path.module}/bootstrap_tests.sh")}"
+}
+
 resource "template_cloudinit_config" "cloudinit_config" {
   gzip          = false
   base64_encode = false
   part {
     content_type = "text/x-shellscript"
     content      = "${template_file.user_data.rendered}"
+  }
+  part {
+    content_type = "text/x-shellscript"
+    content      = "${template_file.bootstrap_tests.rendered}"
   }
 }

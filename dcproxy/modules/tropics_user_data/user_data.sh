@@ -24,4 +24,43 @@ http {
 }
 NGINX_CONF
 service nginx start
+chkconfig nginx on
+yum install -y awslogs
+mv /etc/awslogs/awslogs.conf /etc/awslogs/awslogs.conf.install
+cat <<AWSLOGS_CONF > /etc/awslogs/awslogs.conf
+[general]
+state_file = /var/lib/awslogs/agent-state
+
+[messages]
+datetime_format = %b %d %H:%M:%S
+file = /var/log/messages
+log_stream_name = ${log_stream_name}-messages
+log_group_name = ${log_group_name}
+
+[cloud_init_output_log]
+datetime_format = %b %d %H:%M:%S
+file = /var/log/cloud-init-output.log
+log_stream_name = ${log_stream_name}-cloud-init-output-log
+log_group_name = ${log_group_name}
+
+[bootstrap_tests_log]
+datetime_format = %b %d %H:%M:%S
+file = /var/log/bootstrap-tests.log
+log_stream_name = ${log_stream_name}-bootstrap-tests-log
+log_group_name = ${log_group_name}
+
+[nginx_access_log]
+datetime_format = %b %d %H:%M:%S
+file = /var/log/nginx/access.log
+log_stream_name = ${log_stream_name}-nginx-access-log
+log_group_name = ${log_group_name}
+
+[nginx_error_log]
+datetime_format = %b %d %H:%M:%S
+file = /var/log/nginx/error.log
+log_stream_name = ${log_stream_name}-nginx-error-log
+log_group_name = ${log_group_name}
+AWSLOGS_CONF
+service awslogs start
+chkconfig awslogs on
 yum install -y keepalived

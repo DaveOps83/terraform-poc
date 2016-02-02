@@ -30,9 +30,9 @@ terraform_resource=${5:-""}
 #Set up the environment
 terraform_env_file=".terraform/environment"
 terraform_previous_env=$([ -f $terraform_env_file ] && echo "$(<$terraform_env_file)" || echo "unknown")
-terraform_parallelism=4
+terraform_parallelism=8
 terraform_log_dir="$terraform_config/logs"
-terraform_log_level="DEBUG"
+terraform_log_level="ERROR"
 export TF_LOG=$terraform_log_level
 export TF_LOG_PATH=$terraform_log_dir/$terraform_env.log
 terraform_credentials="credentials.sh"
@@ -89,6 +89,7 @@ case $terraform_cmd in
     -var aws_target_env=$terraform_env \
     -no-color \
     -refresh=true \
+    -module-depth=1 \
     $terraform_config
     ;;
 
