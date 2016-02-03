@@ -93,7 +93,7 @@ module "tropics_security_group" {
 
 module "primary_tropics_instance_user_data" {
     source = "modules/tropics_user_data"
-    tropics_dc_dns = "${module.dns.dc_ingress_dns}"
+    tropics_dc_dns = "${module.dns.tropics_dc_dns}"
     tropics_log_group_name = "${module.tropics_log_group.name}"
     tropics_log_stream_name = "primary-instance"
 }
@@ -118,7 +118,7 @@ module "primary_tropics_instance" {
 
 module "secondary_tropics_instance_user_data" {
     source = "modules/tropics_user_data"
-    tropics_dc_dns = "${module.dns.dc_ingress_dns}"
+    tropics_dc_dns = "${module.dns.tropics_dc_dns}"
     tropics_log_group_name = "${module.tropics_log_group.name}"
     tropics_log_stream_name = "secondary-instance"
 }
@@ -164,7 +164,7 @@ module "das_security_group" {
 
 module "primary_das_instance_user_data" {
     source = "modules/das_user_data"
-    das_dc_dns = "${module.dns.dc_ingress_dns}"
+    das_dc_dns = "${module.dns.das_dc_dns}"
     das_log_group_name = "${module.das_log_group.name}"
     das_log_stream_name = "primary-instance"
 }
@@ -189,7 +189,7 @@ module "primary_das_instance" {
 
 module "secondary_das_instance_user_data" {
     source = "modules/das_user_data"
-    das_dc_dns = "${module.dns.dc_ingress_dns}"
+    das_dc_dns = "${module.dns.das_dc_dns}"
     das_log_group_name = "${module.das_log_group.name}"
     das_log_stream_name = "secondary-instance"
 }
@@ -236,7 +236,7 @@ module "ldaps_security_group" {
 
 module "primary_ldaps_instance_user_data" {
     source = "modules/ldaps_user_data"
-    ldaps_dc_dns = "${module.dns.dc_ingress_dns}"
+    ldaps_dc_dns = "${module.dns.ldaps_dc_dns}"
     ldaps_log_group_name = "${module.ldaps_log_group.name}"
     ldaps_log_stream_name = "primary-instance"
 }
@@ -261,7 +261,7 @@ module "primary_ldaps_instance" {
 
 module "secondary_ldaps_instance_user_data" {
     source = "modules/ldaps_user_data"
-    ldaps_dc_dns = "${module.dns.dc_ingress_dns}"
+    ldaps_dc_dns = "${module.dns.ldaps_dc_dns}"
     ldaps_log_group_name = "${module.ldaps_log_group.name}"
     ldaps_log_stream_name = "secondary-instance"
 }
@@ -309,7 +309,7 @@ module "tour_api_security_group" {
 
 module "primary_tour_api_instance_user_data" {
     source = "modules/tour_api_user_data"
-    tour_api_dc_dns = "${module.dns.dc_ingress_dns}"
+    tour_api_dc_dns = "${module.dns.tour_api_dc_dns}"
     tour_api_log_group_name = "${module.tour_api_log_group.name}"
     tour_api_log_stream_name = "primary-instance"
 }
@@ -334,7 +334,7 @@ module "primary_tour_api_instance" {
 
 module "secondary_tour_api_instance_user_data" {
     source = "modules/tour_api_user_data"
-    tour_api_dc_dns = "${module.dns.dc_ingress_dns}"
+    tour_api_dc_dns = "${module.dns.tour_api_dc_dns}"
     tour_api_log_group_name = "${module.tour_api_log_group.name}"
     tour_api_log_stream_name = "secondary-instance"
 }
@@ -393,16 +393,19 @@ module "tour_api_elb" {
 module "dns" {
     source = "modules/dns"
     dns_hosted_zone_id = "${lookup(var.hosted_zone_id, var.aws_target_env)}"
-    dns_dc_ingress_dns = "dc.${var.aws_target_env}.travcorpservices.com"
     dns_dc_ingress_ip = "${lookup(var.dc_ingress_ip, var.aws_target_env)}"
     dns_bastion_dns = "bastion.${var.aws_target_env}.travcorpservices.com"
     dns_bastion_instance_public_ip = "${module.bastion_instance.public_ip}"
     dns_tropics_dns = "tropics.${var.aws_target_env}.travcorpservices.com"
     dns_primary_tropics_instance_private_ip = "${module.primary_tropics_instance.private_ip}"
+    dns_tropics_dc_dns = "dc-tropics.${var.aws_target_env}.travcorpservices.com"
     dns_das_dns = "das.${var.aws_target_env}.travcorpservices.com"
     dns_primary_das_instance_private_ip = "${module.primary_das_instance.private_ip}"
+    dns_das_dc_dns = "dc-das.${var.aws_target_env}.travcorpservices.com"
     #dns_ldaps_dns = "ldaps.${var.aws_target_env}.travcorpservices.com"
+    #dns_ldaps_dc_dns = "dc-ldaps.${var.aws_target_env}.travcorpservices.com"
     #dns_primary_ldaps_instance_private_ip = "${module.primary_ldaps_instance.private_ip}"
     dns_tour_api_dns = "tours.${var.aws_target_env}.travcorpservices.com"
     dns_tour_api_elb_dns_name = "${module.tour_api_elb.dns_name}"
+    dns_tour_api_dc_dns = "dc-tours.${var.aws_target_env}.travcorpservices.com"
 }

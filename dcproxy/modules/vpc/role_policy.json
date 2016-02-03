@@ -3,13 +3,14 @@
 "Statement": [
 {
   "Action": [
+      "logs:CreateLogGroup",
       "logs:CreateLogStream",
-      "logs:PutLogEvents",
+      "logs:DeleteLogStream",
       "logs:DescribeLogGroups",
-      "logs:DescribeLogStreams"
-      ],
+      "logs:PutLogEvents"
+  ],
     "Effect": "Allow",
-    "Resource": "arn:aws:logs:*:*:log-group:${arn_log_group_name}"
+    "Resource": "arn:aws:logs:*:*:log-group:${arn_log_group_name}:log-stream:*"
     }
   ]
 }

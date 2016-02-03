@@ -64,3 +64,17 @@ AWSLOGS_CONF
 service awslogs start
 chkconfig awslogs on
 yum install -y keepalived
+cat <<KEEPALIVED_CONF > /etc/keepalived/keepalived.conf
+vrrp_script chk_nginx {
+  script "pidof nginx"
+  interval 2
+}
+vrrp_instance das_cluster {
+  virtual_router_id 2
+  interface eth0
+  state MASTER
+  priority 200
+}
+KEEPALIVED_CONF
+service keepalived start
+chkconfig keepalived on
