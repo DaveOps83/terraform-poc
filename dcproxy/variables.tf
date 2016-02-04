@@ -179,8 +179,8 @@ variable "primary_nat_gateway_eip" {
 variable "secondary_nat_gateway_eip" {
     description = "AWS elastic IP allocation ID for the secondary NAT gateway."
     default = {
-        dev = ""
-        qa = ""
+        dev = "eipalloc-296eb54c"
+        qa = "eipalloc-556db630"
         uat = "eipalloc-210c8145"
         prod = "eipalloc-f32cb397"
     }
