@@ -24,6 +24,7 @@ module "vpc" {
 module "bastion_log_group" {
     source = "modules/log_group"
     log_group_name = "${var.stack_name}-bastion"
+    log_group_region = "${lookup(var.region, var.aws_target_env)}"
 }
 
 module "bastion_instance_profile" {
@@ -73,6 +74,7 @@ module "bastion_instance" {
 module "tropics_log_group" {
     source = "modules/log_group"
     log_group_name = "${var.stack_name}-tropics"
+    log_group_region = "${lookup(var.region, var.aws_target_env)}"
 }
 
 module "tropics_instance_profile" {
@@ -96,6 +98,7 @@ module "primary_tropics_instance_user_data" {
     tropics_dc_dns = "${module.dns.tropics_dc_dns}"
     tropics_log_group_name = "${module.tropics_log_group.name}"
     tropics_log_stream_name = "primary-instance"
+    tropics_log_region = "${lookup(var.region, var.aws_target_env)}"
 }
 
 module "primary_tropics_instance" {
@@ -121,6 +124,7 @@ module "secondary_tropics_instance_user_data" {
     tropics_dc_dns = "${module.dns.tropics_dc_dns}"
     tropics_log_group_name = "${module.tropics_log_group.name}"
     tropics_log_stream_name = "secondary-instance"
+    tropics_log_region = "${lookup(var.region, var.aws_target_env)}"
 }
 
 module "secondary_tropics_instance" {
@@ -144,6 +148,7 @@ module "secondary_tropics_instance" {
 module "das_log_group" {
     source = "modules/log_group"
     log_group_name = "${var.stack_name}-das"
+    log_group_region = "${lookup(var.region, var.aws_target_env)}"
 }
 
 module "das_instance_profile" {
@@ -167,6 +172,7 @@ module "primary_das_instance_user_data" {
     das_dc_dns = "${module.dns.das_dc_dns}"
     das_log_group_name = "${module.das_log_group.name}"
     das_log_stream_name = "primary-instance"
+    das_log_region = "${lookup(var.region, var.aws_target_env)}"
 }
 
 module "primary_das_instance" {
@@ -192,6 +198,7 @@ module "secondary_das_instance_user_data" {
     das_dc_dns = "${module.dns.das_dc_dns}"
     das_log_group_name = "${module.das_log_group.name}"
     das_log_stream_name = "secondary-instance"
+    das_log_region = "${lookup(var.region, var.aws_target_env)}"
 }
 
 module "secondary_das_instance" {
@@ -216,6 +223,7 @@ module "secondary_das_instance" {
 module "ldaps_log_group" {
     source = "modules/log_group"
     log_group_name = "${var.stack_name}-ldaps"
+    log_group_region = "${lookup(var.region, var.aws_target_env)}"
 }
 
 module "ldaps_instance_profile" {
@@ -288,6 +296,7 @@ module "secondary_ldaps_instance" {
 module "tour_api_log_group" {
     source = "modules/log_group"
     log_group_name = "${var.stack_name}-tour-api"
+    log_group_region = "${lookup(var.region, var.aws_target_env)}"
 }
 
 module "tour_api_instance_profile" {
@@ -312,6 +321,7 @@ module "primary_tour_api_instance_user_data" {
     tour_api_dc_dns = "${module.dns.tour_api_dc_dns}"
     tour_api_log_group_name = "${module.tour_api_log_group.name}"
     tour_api_log_stream_name = "primary-instance"
+    tour_api_log_region = "${lookup(var.region, var.aws_target_env)}"
 }
 
 module "primary_tour_api_instance" {
@@ -337,6 +347,7 @@ module "secondary_tour_api_instance_user_data" {
     tour_api_dc_dns = "${module.dns.tour_api_dc_dns}"
     tour_api_log_group_name = "${module.tour_api_log_group.name}"
     tour_api_log_stream_name = "secondary-instance"
+    tour_api_log_region = "${lookup(var.region, var.aws_target_env)}"
 }
 
 module "secondary_tour_api_instance" {
@@ -394,7 +405,6 @@ module "dns" {
     source = "modules/dns"
     dns_hosted_zone_id = "${lookup(var.hosted_zone_id, var.aws_target_env)}"
     dns_dc_ingress_ip = "${lookup(var.dc_ingress_ip, var.aws_target_env)}"
-    dns_bastion_dns = "bastion.${var.aws_target_env}.travcorpservices.com"
     dns_bastion_instance_public_ip = "${module.bastion_instance.public_ip}"
     dns_tropics_dns = "tropics.${var.aws_target_env}.travcorpservices.com"
     dns_primary_tropics_instance_private_ip = "${module.primary_tropics_instance.private_ip}"

@@ -1,6 +1,5 @@
 variable "dns_hosted_zone_id" {}
 variable "dns_dc_ingress_ip" {}
-variable "dns_bastion_dns" {}
 variable "dns_bastion_instance_public_ip" {}
 variable "dns_tropics_dns" {}
 variable "dns_primary_tropics_instance_private_ip" {}

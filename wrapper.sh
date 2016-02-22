@@ -1,4 +1,4 @@
-#!/bin/bash -u
+#!/bin/bash -x
 set -o pipefail
 aws_envs="dev|qa|uat|prod"
 aws_env_regex="^(${aws_envs})$"
@@ -16,7 +16,7 @@ function help () {
 }
 
 #Check if all the required arguments have been passed and if their values are correct
-if [[ ($# -eq 3 || $# -eq 5) && ! $1 =~ $terraform_cmd_regex || ! -d $(pwd)/$2 || ! $3 =~ $aws_env_regex ]] ; then
+if [[ ($# -eq 3 || $# -eq 5) && ! $1 =~ $terraform_cmd_regex || -z ${2+x} || ! -d $(pwd)/$2 || ! $3 =~ $aws_env_regex ]] ; then
   help
 fi
 

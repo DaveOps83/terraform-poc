@@ -1,11 +1,3 @@
-resource "aws_route53_record" "bastion" {
-   zone_id = "${var.dns_hosted_zone_id}"
-   name = "${var.dns_bastion_dns}"
-   type = "A"
-   ttl = "60"
-   records = ["${var.dns_bastion_instance_public_ip}"]
-}
-
 resource "aws_route53_record" "tropics" {
    zone_id = "${var.dns_hosted_zone_id}"
    name = "${var.dns_tropics_dns}"

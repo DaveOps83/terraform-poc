@@ -1,4 +1,3 @@
-output "bastion_dns" { value = "${aws_route53_record.bastion.name}" }
 output "tropics_dns" { value = "${aws_route53_record.tropics.name}" }
 output "tropics_dc_dns" { value = "${aws_route53_record.tropics_dc.name}" }
 output "das_dns" { value = "${aws_route53_record.das.name}" }

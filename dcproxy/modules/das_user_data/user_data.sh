@@ -61,6 +61,12 @@ file = /var/log/nginx/error.log
 log_stream_name = ${log_stream_name}-nginx-error-log
 log_group_name = ${log_group_name}
 AWSLOGS_CONF
+cat <<AWSCLI_CONF > /etc/awslogs/awscli.conf
+[plugins]
+cwlogs = cwlogs
+[default]
+region = ${log_region}
+AWSCLI_CONF
 service awslogs start
 chkconfig awslogs on
 yum install -y keepalived

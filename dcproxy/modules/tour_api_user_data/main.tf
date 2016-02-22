@@ -4,6 +4,7 @@ resource "template_file" "user_data" {
     dc_dns = "${var.tour_api_dc_dns}"
     log_group_name = "${var.tour_api_log_group_name}"
     log_stream_name = "${var.tour_api_log_stream_name}"
+    log_region = "${var.tour_api_log_region}"
   }
 }
 

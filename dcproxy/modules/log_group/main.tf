@@ -16,6 +16,7 @@ resource "template_file" "logs_role_policy_document" {
   template = "${file("${path.module}/role_policy.json")}"
   vars {
     arn_log_group_name = "${aws_cloudwatch_log_group.logs.name}"
+    arn_log_group_region = "${var.log_group_region}"
   }
 }
 
