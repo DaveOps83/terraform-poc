@@ -1,0 +1,15 @@
+variable "dns_hosted_zone_id" {}
+variable "dns_dc_ingress_ip" {}
+variable "dns_bastion_instance_public_ip" {}
+variable "dns_tropics_dns" {}
+variable "dns_primary_tropics_instance_private_ip" {}
+variable "dns_tropics_dc_dns" {}
+variable "dns_das_dns" {}
+variable "dns_primary_das_instance_private_ip" {}
+variable "dns_das_dc_dns" {}
+#variable "dns_ldaps_dns" {}
+#variable "dns_ldaps_dc_dns" {}
+#variable "dns_primary_ldaps_instance_private_ip" {}
+variable "dns_tour_api_dns" {}
+variable "dns_tour_api_dc_dns" {}
+variable "dns_tour_api_elb_dns_name" {}

@@ -1,26 +1,21 @@
 variable "aws_target_env" {
   description = "Target AWS environment abbreviation in LOWERCASE - [dev/qa/uat/prod]"
 }
-
 variable "aws_access_key" {
   description = "AWS API access key for the target environment. Value sourced from the TF_VAR_aws_access_key environment variable."
 }
-
 variable "aws_secret_key" {
   description = "AWS API secret key for the target environment. Value sourced from the TF_VAR_aws_secret_key environment variable."
 }
-
-variable "aws_stack_name" {
+variable "stack_name" {
   description = "Name tag value to be used for all resources within the stack."
   default = "dcproxy"
 }
-
-variable "aws_stack_description" {
+variable "stack_description" {
   description = "Description tag value to be used for all resources within the stack."
-  default = "Do not delete or modify"
+  default = "Datacentre proxy resource - do not delete or modify"
 }
-
-variable "aws_region" {
+variable "region" {
     description = "AWS region in which to launch stack."
     default = {
         dev = "eu-west-1"
@@ -29,9 +24,8 @@ variable "aws_region" {
         prod = "us-east-1"
     }
 }
-
-variable "aws_az" {
-    description = "AWS availability zone in which to launch stack."
+variable "primary_az" {
+    description = "Primary AWS availability zone in which to launch stack."
     default = {
         dev = "eu-west-1a"
         qa = "eu-west-1a"
@@ -39,75 +33,31 @@ variable "aws_az" {
         prod = "us-east-1b"
     }
 }
-
-variable "aws_ami" {
-    description = "AWS AMI to use when launching instances in our chosen regions."
+variable "secondary_az" {
+    description = "Secondary AWS availability zone in which to launch stack."
+    default = {
+        dev = "eu-west-1b"
+        qa = "eu-west-1b"
+        uat = "us-east-1b"
+        prod = "us-east-1c"
+    }
+}
+variable "ssl_cert" {
+    description = "AWS ARN of the SSL certificate."
+    default = {
+        dev = "***REMOVED***"
+        qa = "***REMOVED***"
+        uat = "***REMOVED***"
+        prod = "***REMOVED***"
+    }
+}
+variable "bastion_ami" {
+    description = "AWS AMI to use when launching bastion instances in our chosen regions."
     default = {
         eu-west-1 = "ami-bff32ccc"
         us-east-1 = "ami-60b6c60a"
     }
 }
-
-variable "dcproxy_instance_type" {
-    description = "AWS instance type to to use when launching dcproxy instances."
-    default = {
-        dev = "t2.micro"
-        qa = "t2.micro"
-        uat = "t2.micro"
-        prod = "t2.micro"
-    }
-}
-
-variable "dcproxy_key_pair" {
-    description = "AWS key pair to use when launching dcproxy instances."
-    default = {
-        dev = "dcproxy-nodes-dev"
-        qa = "dcproxy-nodes-qa"
-        uat = "dcproxy-nodes-uat"
-        prod = "dcproxy-nodes-prod"
-    }
-}
-
-variable "dcproxy_user_data" {
-    default = "user_data/dcproxy-nodes"
-    description = "AWS user_data script for bootstrapping dcproxy instances."
-}
-
-variable "tropics_dns" {
-    description = "Internal DNS record name for TROPICS."
-    default = {
-        dev = "tropics.dev.travcorpservices.com"
-        qa = "tropics.qa.travcorpservices.com"
-        uat = "tropics.uat.travcorpservices.com"
-        prod = "tropics.prod.travcorpservices.com"
-    }
-}
-
-variable "ldaps_dns" {
-    description = "Internal DNS record name for LDAPS."
-    default = {
-        dev = "ldaps.dev.travcorpservices.com"
-        qa = "ldaps.qa.travcorpservices.com"
-        uat = "ldaps.uat.travcorpservices.com"
-        prod = "ldaps.prod.travcorpservices.com"
-    }
-}
-
-variable "das_dns" {
-    description = "Internal DNS record name for Data Access Services."
-    default = {
-        dev = "das.dev.travcorpservices.com"
-        qa = "das.qa.travcorpservices.com"
-        uat = "das.uat.travcorpservices.com"
-        prod = "das.prod.travcorpservices.com"
-    }
-}
-
-variable "bastion_instance_type" {
-    description = "AWS instance type to use when launching the bastion instance."
-    default = "t2.nano"
-}
-
 variable "bastion_key_pair" {
   description = "AWS key pair to use when launching the bastion instance."
   default = {
@@ -117,14 +67,108 @@ variable "bastion_key_pair" {
       prod = "dcproxy-bastion-prod"
   }
 }
-
-variable "bastion_user_data" {
-    default = "user_data/bastion"
-    description = "AWS user_data script for bootstrapping the bastion node."
+variable "tropics_ami" {
+    description = "AWS AMI to use when launching TROPICS instances in our chosen regions."
+    default = {
+        eu-west-1 = "ami-bff32ccc"
+        us-east-1 = "ami-60b6c60a"
+    }
 }
-
-variable "aws_nat_gateway_eip" {
-    description = "AWS elastic IP allocation ID for NAT gateway."
+variable "tropics_instance_type" {
+    description = "AWS instance type to use when launching TROPICS instances."
+    default = {
+        dev = "t2.nano"
+        qa = "t2.nano"
+        uat = "t2.nano"
+        prod = "t2.nano"
+    }
+}
+variable "tropics_key_pair" {
+    description = "AWS key pair to use when launching TROPICS instances."
+    default = {
+        dev = "dcproxy-nodes-dev"
+        qa = "dcproxy-nodes-qa"
+        uat = "dcproxy-nodes-uat"
+        prod = "dcproxy-nodes-prod"
+    }
+}
+variable "das_ami" {
+    description = "AWS AMI to use when launching DAS instances in our chosen regions."
+    default = {
+        eu-west-1 = "ami-bff32ccc"
+        us-east-1 = "ami-60b6c60a"
+    }
+}
+variable "das_instance_type" {
+    description = "AWS instance type to use when launching DAS instances."
+    default = {
+        dev = "t2.nano"
+        qa = "t2.nano"
+        uat = "t2.nano"
+        prod = "t2.nano"
+    }
+}
+variable "das_key_pair" {
+    description = "AWS key pair to use when launching DAS instances."
+    default = {
+        dev = "dcproxy-nodes-dev"
+        qa = "dcproxy-nodes-qa"
+        uat = "dcproxy-nodes-uat"
+        prod = "dcproxy-nodes-prod"
+    }
+}
+variable "ldaps_ami" {
+    description = "AWS AMI to use when launching LDAPS instances in our chosen regions."
+    default = {
+        eu-west-1 = "ami-bff32ccc"
+        us-east-1 = "ami-60b6c60a"
+    }
+}
+variable "ldaps_instance_type" {
+    description = "AWS instance type to use when launching LDAPS instances."
+    default = {
+        dev = "t2.nano"
+        qa = "t2.nano"
+        uat = "t2.nano"
+        prod = "t2.nano"
+    }
+}
+variable "ldaps_key_pair" {
+    description = "AWS key pair to use when launching LDAPS instances."
+    default = {
+        dev = "dcproxy-nodes-dev"
+        qa = "dcproxy-nodes-qa"
+        uat = "dcproxy-nodes-uat"
+        prod = "dcproxy-nodes-prod"
+    }
+}
+variable "tour_api_ami" {
+    description = "AWS AMI to use when launching LDAPS instances in our chosen regions."
+    default = {
+        eu-west-1 = "ami-bff32ccc"
+        us-east-1 = "ami-60b6c60a"
+    }
+}
+variable "tour_api_instance_type" {
+    description = "AWS instance type to use when launching LDAPS instances."
+    default = {
+        dev = "t2.nano"
+        qa = "t2.nano"
+        uat = "t2.nano"
+        prod = "t2.nano"
+    }
+}
+variable "tour_api_key_pair" {
+    description = "AWS key pair to use when launching LDAPS instances."
+    default = {
+        dev = "dcproxy-nodes-dev"
+        qa = "dcproxy-nodes-qa"
+        uat = "dcproxy-nodes-uat"
+        prod = "dcproxy-nodes-prod"
+    }
+}
+variable "primary_nat_gateway_eip" {
+    description = "AWS elastic IP allocation ID for the primary NAT gateway."
     default = {
         dev = "eipalloc-68c90b0d"
         qa = "eipalloc-496db62c"
@@ -132,8 +176,16 @@ variable "aws_nat_gateway_eip" {
         prod = "eipalloc-6136a605"
     }
 }
-
-variable "aws_hosted_zone" {
+variable "secondary_nat_gateway_eip" {
+    description = "AWS elastic IP allocation ID for the secondary NAT gateway."
+    default = {
+        dev = "eipalloc-296eb54c"
+        qa = "eipalloc-556db630"
+        uat = "eipalloc-210c8145"
+        prod = "eipalloc-f32cb397"
+    }
+}
+variable "hosted_zone_id" {
     description = "AWS hosted zone ID for DNS record creation."
     default = {
         dev = "***REMOVED***"
@@ -142,28 +194,20 @@ variable "aws_hosted_zone" {
         prod = "***REMOVED***"
     }
 }
-
-variable "dc_ip" {
-    description = "Public IP of the TTC data centre endpoint."
+variable "dc_ingress_ip" {
+    description = "Public IP of the TTC data centre service integration point."
     default = {
         dev = "***REMOVED***"
-        qa = "***REMOVED***"
+        qa = "***REMOVED***3"
         uat = "***REMOVED***"
         prod = "***REMOVED***"
     }
 }
-
-variable "dc_dns" {
-    description = "Public IP of the TTC data centre endpoint."
-    default = {
-        dev = "dc.dev.travcorpservices.com"
-        qa = "dc.qa.travcorpservices.com"
-        uat = "dc.uat.travcorpservices.com"
-        prod = "dc.prod.travcorpservices.com"
-    }
+variable "dc_egress_range" {
+    description = "Public outbound IP range of the TTC data centre for bastion connectivity."
+    default = "***REMOVED***"
 }
-
 variable "dc_ldaps_url" {
-    description = "Public IP of the TTC data centre endpoint."
+    description = "Public inbound IP of the TTC data centre endpoint."
     default = "***REMOVED***"
 }

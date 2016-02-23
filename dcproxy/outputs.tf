@@ -1,0 +1,16 @@
+output "VPC - CIDR block" { value = "${module.vpc.cidr_block}" }
+output "VPC - ID" { value = "${module.vpc.id}" }
+output "VPC - Primary Private Subnet Route Table ID" { value = "${module.vpc.primary_private_route_table}" }
+output "VPC - Primary Private Subnet CIDR block" { value = "${module.vpc.primary_private_cidr_block}" }
+output "VPC - Secondary Private Subnet Route Table ID" { value = "${module.vpc.secondary_private_route_table}" }
+output "VPC - Secondary Private Subnet CIDR block" { value = "${module.vpc.secondary_private_cidr_block}" }
+output "VPC - Primary NAT Gateway Public IP" { value = "${module.vpc.primary_nat_gateway_eip}" }
+output "VPC - Secondary NAT Gateway Public IP" { value = "${module.vpc.secondary_nat_gateway_eip}" }
+output "AWS INTERNAL - TROPICS Res API" { value = "http://${module.dns.tropics_dns}/tropics/TropicsWS" }
+output "AWS INTERNAL - TROPICS Build API" { value = "http://${module.dns.tropics_dns}/tropics/TropicsBuildWS" }
+output "AWS INTERNAL - TROPICS Customer Sync API" { value = "http://${module.dns.tropics_dns}/tropics/CustomerSyncWS" }
+output "AWS INTERNAL - TROPICS RESTful API" { value = "http://${module.dns.tropics_dns}/tropics/api" }
+output "AWS INTERNAL - Data Access Services API" { value = "http://${module.dns.das_dns}/DataAccessServices/OracleDataService.svc" }
+#output "AWS INTERNAL - LDAPS" { value = "http://${module.dns.ldaps_dns}" }
+output "AWS EXTERNAL - Tour API" { value = "https://${module.dns.tour_api_dns}" }
+output "SSH - Bastion" { value = "ssh -i ${module.bastion_instance.key_name}.pem ec2-user@${module.bastion_instance.public_ip}" }

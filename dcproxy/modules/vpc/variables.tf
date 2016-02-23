@@ -1,0 +1,13 @@
+variable "vpc_cidr_block" {}
+variable "vpc_primary_private_cidr_block" {}
+variable "vpc_primary_public_cidr_block" {}
+variable "vpc_secondary_private_cidr_block" {}
+variable "vpc_secondary_public_cidr_block" {}
+variable "vpc_primary_az" {}
+variable "vpc_secondary_az" {}
+variable "vpc_primary_nat_gateway_eip" {}
+variable "vpc_secondary_nat_gateway_eip" {}
+variable "vpc_name_tag" {}
+variable "vpc_description_tag" {}
+variable "vpc_project_tag" {}
+variable "vpc_environment_tag" {}
