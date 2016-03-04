@@ -51,14 +51,6 @@ resource "aws_route53_record" "ldaps_dc" {
 resource "aws_route53_record" "tour_api" {
    zone_id = "${var.dns_hosted_zone_id}"
    name = "${var.dns_tour_api_dns}"
-   type = "CNAME"
-   ttl = "300"
-   records = ["${var.dns_tour_api_elb_dns_name}"]
-}
-
-resource "aws_route53_record" "tour_api_dc" {
-   zone_id = "${var.dns_hosted_zone_id}"
-   name = "${var.dns_tour_api_dc_dns}"
    type = "A"
    ttl = "300"
    records = ["${var.dns_dc_ingress_ip}"]

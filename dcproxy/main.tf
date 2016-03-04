@@ -40,7 +40,6 @@ module "bastion_security_group" {
     bastion_security_group_tropics_security_group = "${module.tropics_security_group.id}"
     bastion_security_group_das_security_group = "${module.das_security_group.id}"
     #bastion_security_group_ldaps_security_group = "${module.ldaps_security_group.id}"
-    bastion_security_group_tour_api_security_group = "${module.tour_api_security_group.id}"
     bastion_security_group_name = "${var.stack_name}-bastion"
     bastion_security_group_description = "${var.stack_description}"
     bastion_security_group_tag_project = "${var.stack_name}"
@@ -293,114 +292,6 @@ module "secondary_ldaps_instance" {
 }
 */
 
-module "tour_api_log_group" {
-    source = "modules/log_group"
-    log_group_name = "${var.stack_name}-tour-api"
-    log_group_region = "${lookup(var.region, var.aws_target_env)}"
-}
-
-module "tour_api_instance_profile" {
-    source = "modules/instance_profile"
-    instance_profile_name = "${var.stack_name}-tour-api"
-    instance_profile_roles = "${module.tour_api_log_group.role}"
-}
-
-module "tour_api_security_group" {
-    source = "modules/tour_api_security_group"
-    tour_api_security_group_vpc_id = "${module.vpc.id}"
-    tour_api_security_group_bastion_security_group = "${module.bastion_security_group.id}"
-    tour_api_security_group_elb_security_group = "${module.tour_api_elb_security_group.id}"
-    tour_api_security_group_name = "${var.stack_name}-tour-api"
-    tour_api_security_group_description = "${var.stack_description}"
-    tour_api_security_group_tag_project = "${var.stack_name}"
-    tour_api_security_group_tag_environment = "${var.aws_target_env}"
-}
-
-module "primary_tour_api_instance_user_data" {
-    source = "modules/tour_api_user_data"
-    tour_api_dc_dns = "${module.dns.tour_api_dc_dns}"
-    tour_api_log_group_name = "${module.tour_api_log_group.name}"
-    tour_api_log_stream_name = "primary-instance"
-    tour_api_log_region = "${lookup(var.region, var.aws_target_env)}"
-}
-
-module "primary_tour_api_instance" {
-    source = "modules/instance"
-    instance_ami = "${lookup(var.tour_api_ami, lookup(var.region, var.aws_target_env))}"
-    instance_type = "${lookup(var.tour_api_instance_type, var.aws_target_env)}"
-    instance_key_pair = "${lookup(var.tour_api_key_pair, var.aws_target_env)}"
-    instance_subnet = "${module.vpc.primary_private_subnet}"
-    instance_associate_public_ip_address = "false"
-    instance_security_group = "${module.tour_api_security_group.id}"
-    instance_profile = "${module.tour_api_instance_profile.name}"
-    instance_monitoring = "true"
-    instance_disable_api_termination = "false"
-    instance_user_data = "${module.primary_tour_api_instance_user_data.user_data}"
-    instance_tag_name = "${var.stack_name}-primary-tour-api"
-    instance_tag_description = "${var.stack_description}"
-    instance_tag_project = "${var.stack_name}"
-    instance_tag_environment = "${var.aws_target_env}"
-}
-
-module "secondary_tour_api_instance_user_data" {
-    source = "modules/tour_api_user_data"
-    tour_api_dc_dns = "${module.dns.tour_api_dc_dns}"
-    tour_api_log_group_name = "${module.tour_api_log_group.name}"
-    tour_api_log_stream_name = "secondary-instance"
-    tour_api_log_region = "${lookup(var.region, var.aws_target_env)}"
-}
-
-module "secondary_tour_api_instance" {
-    source = "modules/instance"
-    instance_ami = "${lookup(var.tour_api_ami, lookup(var.region, var.aws_target_env))}"
-    instance_type = "${lookup(var.tour_api_instance_type, var.aws_target_env)}"
-    instance_key_pair = "${lookup(var.tour_api_key_pair, var.aws_target_env)}"
-    instance_subnet = "${module.vpc.secondary_private_subnet}"
-    instance_associate_public_ip_address = "false"
-    instance_security_group = "${module.tour_api_security_group.id}"
-    instance_profile = "${module.tour_api_instance_profile.name}"
-    instance_monitoring = "true"
-    instance_disable_api_termination = "false"
-    instance_user_data = "${module.secondary_tour_api_instance_user_data.user_data}"
-    instance_tag_name = "${var.stack_name}-secondary-tour-api"
-    instance_tag_description = "${var.stack_description}"
-    instance_tag_project = "${var.stack_name}"
-    instance_tag_environment = "${var.aws_target_env}"
-}
-
-module "tour_api_elb_security_group" {
-    source = "modules/tour_api_elb_security_group"
-    tour_api_elb_security_group_vpc_id = "${module.vpc.id}"
-    tour_api_elb_security_group_tour_api_security_group = "${module.tour_api_security_group.id}"
-    tour_api_elb_security_group_name = "${var.stack_name}-tour-api-elb"
-    tour_api_elb_security_group_description = "${var.stack_description}"
-    tour_api_elb_security_group_tag_project = "${var.stack_name}"
-    tour_api_elb_security_group_tag_environment = "${var.aws_target_env}"
-}
-
-module "tour_api_elb" {
-    source = "modules/https_elb"
-    https_elb_subnets = "${module.vpc.primary_public_subnet},${module.vpc.secondary_public_subnet}"
-    https_elb_cross_zone = "true"
-    https_elb_idle_timeout = "30"
-    https_elb_connection_draining = "true"
-    https_elb_connection_draining_timeout = "30"
-    https_elb_security_groups = "${module.tour_api_elb_security_group.id}"
-    https_elb_ssl_cert_arn = "${lookup(var.ssl_cert, var.aws_target_env)}"
-    https_elb_instances = "${module.primary_tour_api_instance.id},${module.secondary_tour_api_instance.id}"
-    https_elb_instance_port = "80"
-    https_elb_instance_protocol = "HTTP"
-    https_elb_healthy_threshold = "3"
-    https_elb_unhealthy_threshold = "3"
-    https_elb_health_check_timeout = "30"
-    https_elb_health_check_target_path = "health-check"
-    https_elb_health_check_interval = "60"
-    https_elb_tag_name = "${var.stack_name}-tour-api"
-    https_elb_tag_description = "${var.stack_description}"
-    https_elb_tag_project = "${var.stack_name}"
-    https_elb_tag_environment = "${var.aws_target_env}"
-}
-
 module "dns" {
     source = "modules/dns"
     dns_hosted_zone_id = "${lookup(var.hosted_zone_id, var.aws_target_env)}"
@@ -416,6 +307,4 @@ module "dns" {
     #dns_ldaps_dc_dns = "dc-ldaps.${var.aws_target_env}.travcorpservices.com"
     #dns_primary_ldaps_instance_private_ip = "${module.primary_ldaps_instance.private_ip}"
     dns_tour_api_dns = "tours.${var.aws_target_env}.travcorpservices.com"
-    dns_tour_api_elb_dns_name = "${module.tour_api_elb.dns_name}"
-    dns_tour_api_dc_dns = "dc-tours.${var.aws_target_env}.travcorpservices.com"
 }

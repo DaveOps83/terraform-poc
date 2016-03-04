@@ -11,5 +11,3 @@ variable "dns_das_dc_dns" {}
 #variable "dns_ldaps_dc_dns" {}
 #variable "dns_primary_ldaps_instance_private_ip" {}
 variable "dns_tour_api_dns" {}
-variable "dns_tour_api_dc_dns" {}
-variable "dns_tour_api_elb_dns_name" {}
