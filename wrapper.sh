@@ -28,10 +28,14 @@ terraform_module=${4:-""}
 terraform_resource=${5:-""}
 
 #Set up the environment
+#Create the .terraform directory if it does not exist
+if [[ ! -d .terraform ]] ; then mkdir .terraform; fi
 terraform_env_file=".terraform/environment"
 terraform_previous_env=$([ -f $terraform_env_file ] && echo "$(<$terraform_env_file)" || echo "unknown")
 terraform_parallelism=8
 terraform_log_dir="$terraform_config/logs"
+#Create the logs directory if it does not exist
+if [[ ! -d $terraform_log_dir ]] ; then mkdir $terraform_log_dir; fi
 terraform_log_level="ERROR"
 export TF_LOG=$terraform_log_level
 export TF_LOG_PATH=$terraform_log_dir/$terraform_env.log
@@ -50,9 +54,6 @@ if [[ $terraform_previous_env != ${terraform_config}_$terraform_env || ! -f ./.t
     -backup=-
   echo ${terraform_config}_$terraform_env > $terraform_env_file
 fi
-
-#Create the logs directory if it does not exist
-if [[ ! -d $terraform_log_dir ]] ; then mkdir $terraform_log_dir; fi
 
 case $terraform_cmd in
   apply)
