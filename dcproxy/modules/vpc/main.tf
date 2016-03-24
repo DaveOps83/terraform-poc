@@ -39,9 +39,9 @@ resource "aws_route_table" "primary_private" {
         nat_gateway_id = "${aws_nat_gateway.primary_nat_gateway.id}"
     }
     #Ignore changes to this route table made to support PCX connections.
-    lifecycle {
-        ignore_changes = ["route"]
-    }
+    #lifecycle {
+    #    ignore_changes = ["route"]
+    #}
     tags {
         Name = "${var.vpc_name_tag}-primary-private"
         Description = "${var.vpc_description_tag}"
@@ -111,9 +111,9 @@ resource "aws_route_table" "secondary_private" {
         nat_gateway_id = "${aws_nat_gateway.secondary_nat_gateway.id}"
     }
     #Ignore changes to this route table made to support PCX connections.
-    lifecycle {
-        ignore_changes = ["route"]
-    }
+    #lifecycle {
+    #    ignore_changes = ["route"]
+    #}
     tags {
         Name = "${var.vpc_name_tag}-secondary-private"
         Description = "${var.vpc_description_tag}"

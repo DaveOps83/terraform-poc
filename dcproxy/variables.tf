@@ -198,7 +198,7 @@ variable "dc_ingress_ip" {
     description = "Public IP of the TTC data centre service integration point."
     default = {
         dev = "***REMOVED***"
-        qa = "***REMOVED***"
+        qa = "***REMOVED***3"
         uat = "***REMOVED***"
         prod = "***REMOVED***"
     }
