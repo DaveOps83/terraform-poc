@@ -28,7 +28,7 @@ We will go into more detail on the above in next section.
 
 Firstly go and download Terraform for your OS here https://www.terraform.io/downloads.html and unzip it to a directory on your machine and make sure that this directory's path is included on your `%PATH%` environment variable or if you are working on a proper operating system your `$PATH` environment variable.
 
-Since the `credentials.sh` and `wrapper.sh` scripts are written in good old fashioned Bash you will need to install Cygwin which you can download here https://cygwin.com/install.html .
+Since the `credentials.sh` and `wrapper.sh` scripts are written in good old fashioned Bash you will need to install Cygwin of you are working on the Windows platform. It can be downloaded here https://cygwin.com/install.html .
 
 Once you have installed the above software you will need to clone this repository.
 
