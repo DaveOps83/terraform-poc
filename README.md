@@ -55,14 +55,47 @@ For example if you wanted to apply the changes you have made within the dcproxy 
 
 ` ./wrapper.sh apply dcproxy dev`
 
-####Terraform apply command
+####Supported Terraform commands
 
-Applies changes to the target infrastructure. Find out more here https://www.terraform.io/docs/commands/apply.html
+**apply**
 
-` ./wrapper.sh apply dcproxy dev`
+Applies configuration changes to the target environment. Find out more here https://www.terraform.io/docs/commands/apply.html
 
-####Terraform destroy command
+` ./wrapper.sh apply dcproxy dev` - Applies the changes contained in the dcproxy configuration to the dev environment.
 
-Destroys the target infrastructure. Find out more here https://www.terraform.io/docs/commands/destroy.html
+**destroy**
 
-` ./wrapper.sh destroy cloudtrail qa`
+Destroys the managed infrastructure in the target environment. Find out more here https://www.terraform.io/docs/commands/destroy.html
+
+` ./wrapper.sh destroy cloudtrail qa` - Destroys the infrastructure defined in the cloudtrail configuration in the QA environment.
+
+**plan**
+
+Generates an execution plan of the changes that will be made to the target environment when the apply command is issued. Find out more here https://www.terraform.io/docs/commands/plan.html
+
+` ./wrapper.sh plan dcproxy prod` - Generates an execution plan for making the changes contained in the dcproxy configuration to the Production environment.
+
+**get**
+
+Updates the Terraform modules for given configuration. Find out more here https://www.terraform.io/docs/commands/get.html
+
+` ./wrapper.sh get dcproxy dev` - Updates the Terraform modules for the dcproxy configuration while working on the dev environment.
+
+**taint**
+
+Marks a resource as tainted so that it destroyed the next time the appy command is issued. Find out more here https://www.terraform.io/docs/commands/taint.html
+
+` ./wrapper.sh taint dcproxy dev vpc` - taints all the resources in the VPC module for the dev environment.
+` ./wrapper.sh taint dcproxy dev vpc internet_gateway` - taints the internet_gateway resource in the VPC module for the dev. environment
+
+**output**
+
+Displays all the output variables for the specified target configuration and environment. Find out more here https://www.terraform.io/docs/commands/output.html
+
+` ./wrapper.sh output cloudtrail prod` - Outputs the details of the cloudtrail configuration in the Production environment.
+
+**show**
+
+Prints out a human readable version of the state file for the target environment and configuration. Find out more here https://www.terraform.io/docs/commands/show.html
+
+` ./wrapper.sh show dcproxy uat` - Prints out the state file for the dcproxy configuration in the UAT environment.
