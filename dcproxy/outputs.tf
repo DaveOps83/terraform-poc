@@ -12,4 +12,5 @@ output "AWS INTERNAL - TROPICS Customer Sync API" { value = "http://${module.dns
 output "AWS INTERNAL - TROPICS RESTful API" { value = "http://${module.dns.tropics_dns}/tropics/api" }
 output "AWS INTERNAL - Data Access Services API" { value = "http://${module.dns.das_dns}/DataAccessServices/OracleDataService.svc" }
 #output "AWS INTERNAL - LDAPS" { value = "http://${module.dns.ldaps_dns}" }
+output "AWS EXTERNAL - Tour API" { value = "https://${module.dns.tour_api_dns}" }
 output "SSH - Bastion" { value = "ssh -i ${module.bastion_instance.key_name}.pem ec2-user@${module.bastion_instance.public_ip}" }
