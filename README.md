@@ -32,7 +32,7 @@ Since the `credentials.sh` and `wrapper.sh` scripts are written in good old fash
 
 Once you have installed the above software you will need to clone this repository.
 
-Now you need to set up the `credentials.sh` file with the Artifactory Terraform state file repository's details and your AWS API keys for the environments you are going to be working on. The script is very easy to understand so no need to go into anymore detail on this. **Just remember not to push your you changes to this file to Github.** You can run the following command on your local Terraform repository to ensure that any changes you make to this file are ignored `git update-index --assume-unchanged credentials.sh`.
+Now you need to set up the `credentials.sh` file with the Artifactory Terraform state file repository's details and your AWS API keys for the environments you are going to be working on. **If you do not already have the necessary secrets please speak to your line manager.** The script is very easy to understand so no need to go into anymore detail on this. **Just remember not to push your you changes to this file to Github.** You can run the following command on your local Terraform repository to ensure that any changes you make to this file are ignored `git update-index --assume-unchanged credentials.sh`.
 
 That's it not you can start working with Terraform
 
@@ -86,6 +86,7 @@ Updates the Terraform modules for given configuration. Find out more here https:
 Marks a resource as tainted so that it destroyed the next time the appy command is issued. Find out more here https://www.terraform.io/docs/commands/taint.html
 
 ` ./wrapper.sh taint dcproxy dev vpc` - taints all the resources in the VPC module for the dev environment.
+
 ` ./wrapper.sh taint dcproxy dev vpc internet_gateway` - taints the internet_gateway resource in the VPC module for the dev. environment
 
 **output**
@@ -99,3 +100,16 @@ Displays all the output variables for the specified target configuration and env
 Prints out a human readable version of the state file for the target environment and configuration. Find out more here https://www.terraform.io/docs/commands/show.html
 
 ` ./wrapper.sh show dcproxy uat` - Prints out the state file for the dcproxy configuration in the UAT environment.
+
+####Hacking on the codez
+
+This is documented extensively on the Terraform website however I will highlight sections in the documentation which have been used extensively in this implementation, these are in no particular order:
+
+https://www.terraform.io/docs/state/remote/artifactory.html
+https://www.terraform.io/docs/modules/index.html
+https://www.terraform.io/docs/configuration/outputs.html
+https://www.terraform.io/docs/configuration/interpolation.html
+https://www.terraform.io/docs/providers/aws/index.html
+https://www.terraform.io/docs/configuration/syntax.html
+
+The root of the Terraform documentation is here https://www.terraform.io/docs/index.html
