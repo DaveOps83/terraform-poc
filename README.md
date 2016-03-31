@@ -2,7 +2,7 @@
 
 ###What is Terraform?
 
-Have a look at the product site: https://www.terraform.io/ they creator can pitch their product better than I can.
+Have a look at the product site: https://www.terraform.io/ the creators can pitch their product better than I can.
 
 ###What do we use if for?
 
@@ -26,10 +26,10 @@ We will go into more detail on the above in next section.
 
 ###Getting started
 
-Firstly go and download Terraform for your OS here https://www.terraform.io/downloads.html unzip it to a directory on your machine and make sure that this folders path is included on your %PATH% environment variable or if you are working on a proper operating system your $PATH environment variable.
+Firstly go and download Terraform for your OS here https://www.terraform.io/downloads.html and unzip it to a directory on your machine and make sure that this directory's path is included on your `%PATH%` environment variable or if you are working on a proper operating system your `$PATH` environment variable.
 
-Since the credentials.sh and wrapper.sh scripts are written in good old fashioned Bash you will need to install Cygwin which you can download here https://cygwin.com/install.html .
+Since the `credentials.sh` and `wrapper.sh` scripts are written in good old fashioned Bash you will need to install Cygwin which you can download here https://cygwin.com/install.html .
 
 Once you have installed the above software you will need to clone this repository.
 
-Now you need to set up the credentials.sh file with the Artifactory Terraform state file repository's details and your AWS API keys for the environments you are going to be working on. The script is very easy to understand so no need to go into anymore detail on this. **Just remember not to push your you changes to this file to Github.** You can run the following command on your local Terraform repository to ensure that any changes you make to this file are ignored `git update-index --assume-unchanged credentials.sh`.
+Now you need to set up the `credentials.sh` file with the Artifactory Terraform state file repository's details and your AWS API keys for the environments you are going to be working on. The script is very easy to understand so no need to go into anymore detail on this. **Just remember not to push your you changes to this file to Github.** You can run the following command on your local Terraform repository to ensure that any changes you make to this file are ignored `git update-index --assume-unchanged credentials.sh`.
