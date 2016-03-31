@@ -106,10 +106,15 @@ Prints out a human readable version of the state file for the target environment
 This is documented extensively on the Terraform website however I will highlight sections in the documentation which have been used extensively in this implementation, these are in no particular order:
 
 https://www.terraform.io/docs/state/remote/artifactory.html
+
 https://www.terraform.io/docs/modules/index.html
+
 https://www.terraform.io/docs/configuration/outputs.html
+
 https://www.terraform.io/docs/configuration/interpolation.html
+
 https://www.terraform.io/docs/providers/aws/index.html
+
 https://www.terraform.io/docs/configuration/syntax.html
 
 The root of the Terraform documentation is here https://www.terraform.io/docs/index.html
