@@ -28,20 +28,20 @@ We will go into more detail on the these below.
 
 Firstly go and download Terraform for your OS here https://www.terraform.io/downloads.html and unzip it to a directory on your machine and make sure that this directory's path is included on your `%PATH%` environment variable or if you are working on a proper operating system your `$PATH` environment variable.
 
-Since the `credentials.sh` and `wrapper.sh` scripts are written in good old fashioned Bash you will need to install Cygwin of you are working on the Windows platform. It can be downloaded here https://cygwin.com/install.html .
+Since the `credentials.sh` and `wrapper.sh` scripts are written in good old fashioned Bash you will need to install Cygwin if you are working on the Windows platform. It can be downloaded here https://cygwin.com/install.html .
 
-Once you have installed the above software you will need to clone this repository.
+Once you have installed the above software you will need to clone this repository - `git clone https://github.com/travcorp/terraform.git`
 
-Now you need to set up the `credentials.sh` file with the Artifactory Terraform state file repository's details and your AWS API keys for the environments you are going to be working on. **If you do not already have the necessary secrets please speak to your line manager.** The script is very easy to understand so no need to go into anymore detail on this. **Just remember not to push your you changes to this file to Github.** You can run the following command on your local Terraform repository to ensure that any changes you make to this file are ignored `git update-index --assume-unchanged credentials.sh`.
+Now you need to set up the `credentials.sh` file with the Artifactory Terraform state file repository's details and your AWS API keys for the environments you are going to be working on. **If you do not already have the necessary secrets please speak to your line manager as they have access to them.** The script is very easy to understand so there is no need to go into anymore detail on this. **Just remember not to push your you changes to this file to Github.** You can run the following command on your local Terraform repository to ensure that any changes you make to this file are ignored `git update-index --assume-unchanged credentials.sh`. It would good if secret management was refactored at some point so that the secrets in `credentials.sh` are available to Terraform without this needing this script.  Constantly making sure you are not pushing secrets to GitHub is a pain in the ass.
 
-That's it not you can start working with Terraform
+Now you can start working with Terraform.
 
 ###Working with Terraform
 
 The `wrapper.sh` script is where all the magic happens and serves the following purposes:
 
-1. Wrapping the often verbose Terraform commands
-2. Allow us to have individual state files for each environment per Terraform configuration by using Artifactory as a backend for storing them
+1. Wrapping up the often verbose Terraform commands and syntax
+2. Allowing us to have individual state files for each AWS environment and Terraform configuration combination by using Artifactory as a backend for storing them
 
 Here is the syntax of 'wrapper.sh' and the Terraform commands it supports:
 
@@ -49,13 +49,13 @@ Here is the syntax of 'wrapper.sh' and the Terraform commands it supports:
 
 ` ./wrapper.sh [Terraform command] [Terraform configuration] [Environment]`
 
-This script should always be run the root of the repository so that you can pass a Terraform configuration directory as a parameter.
+This script should always be run the root of the repository so that you can pass Terraform configuration directories as the second parameter.
 
 For example if you wanted to apply the changes you have made within the dcproxy configuration to the AWS dev environment you would execute the following command:
 
 ` ./wrapper.sh apply dcproxy dev`
 
-####Supported Terraform commands
+####Terraform commands supported by wrapper.sh
 
 **apply**
 
