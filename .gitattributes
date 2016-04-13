@@ -1,1 +1,5 @@
-* text eol=lf
+*.png binary
+*.sh text eol=lf
+*.tf text eol=lf
+*.tstate text eol=lf
+*.tstate.backup text eol=lf
