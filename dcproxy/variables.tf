@@ -45,10 +45,10 @@ variable "secondary_az" {
 variable "ssl_cert" {
     description = "AWS ARN of the SSL certificate."
     default = {
-        dev = "***REMOVED***"
-        qa = "***REMOVED***"
-        uat = "***REMOVED***"
-        prod = "***REMOVED***"
+        dev = ""
+        qa = ""
+        uat = ""
+        prod = ""
     }
 }
 variable "bastion_ami" {
@@ -188,26 +188,26 @@ variable "secondary_nat_gateway_eip" {
 variable "hosted_zone_id" {
     description = "AWS hosted zone ID for DNS record creation."
     default = {
-        dev = "***REMOVED***"
-        qa = "***REMOVED***"
-        uat = "***REMOVED***"
-        prod = "***REMOVED***"
+        dev = ""
+        qa = ""
+        uat = ""
+        prod = ""
     }
 }
 variable "dc_ingress_ip" {
     description = "Public IP of the TTC data centre service integration point."
     default = {
-        dev = "***REMOVED***"
-        qa = "***REMOVED***"
-        uat = "***REMOVED***"
-        prod = "***REMOVED***"
+        dev = ""
+        qa = ""
+        uat = ""
+        prod = ""
     }
 }
 variable "dc_egress_range" {
     description = "Public outbound IP range of the TTC data centre for bastion connectivity."
-    default = "***REMOVED***"
+    default = ""
 }
 variable "dc_ldaps_url" {
     description = "Public inbound IP of the TTC data centre endpoint."
-    default = "***REMOVED***"
+    default = ""
 }
